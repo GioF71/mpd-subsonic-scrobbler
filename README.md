@@ -58,7 +58,7 @@ The subsonic configuration parameters are required: either specificy the individ
 
 ### Example configurations
 
-The following connect to `mpd-d10` which is an instance of `mpd-alsa-docker` running on the same host and specifically on the network `mpd`.  
+The following compose file create a scrobbler for `mpd-d10`, which is an instance of `mpd-alsa-docker` running on the same host and specifically on the network `mpd`.  
 Subsonic config is read from a separate file.  
 
 ```text
