@@ -2,7 +2,7 @@
 
 This is a very simple Subsonic scrobbler for MPD.  
 It is not a LAST.FM or libre.fm scrobbler.  
-This scrobbler allows mpd to notify a subsonic server when it has played a song which has been server from that subsonic server.  
+This scrobbler allows mpd to notify a subsonic server when it has played a song which has been server from that subsonic server. The subsonic server might, if configured, scrobble the song to LAST.FM, libre.fm, etc.   
 It might be useful when using the Subsonic plugin for Upmpdcli. See the discussion [here](https://github.com/navidrome/navidrome/discussions/2324).
 
 ## Links
