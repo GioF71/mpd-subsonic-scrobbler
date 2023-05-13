@@ -130,7 +130,7 @@ def iteration(context : Context):
             print(f"New subsonic track {subsonic_track_id} playing")
             last_scrobbled_track_id : str = context.get(ContextKey.LAST_SCROBBLED_TRACK_ID)
             if (old_song) and (not last_scrobbled_track_id == old_song.getId()):
-                print(f"Last song TrackId[{old_song.getId()}] Artist:[{old_song.getArtist()}] Title:[{old_song.getTitle()}] was not scrobbled.")
+                print(f"Last song TrackId:[{old_song.getId()}] Artist:[{old_song.getArtist()}] Title:[{old_song.getTitle()}] was not scrobbled.")
             # update current_subsonic_track_id and reset counter
             context.set(ContextKey.CURRENT_SUBSONIC_TRACK_ID, song.getId())
             current_track_hit_count : int = 1
@@ -153,6 +153,8 @@ def iteration(context : Context):
 context : Context = Context()
 
 while True:
+
+    
     mpd_playing : bool = False
     try:
         status : dict = get_mpd_status(context)
