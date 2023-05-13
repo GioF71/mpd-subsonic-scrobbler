@@ -23,8 +23,8 @@ The last two provide a simple way to deploy mpd and upmpdcli using docker.
 
 Repo|URL
 :---|:---
-Source code|[GitHub](https://github.com/GioF71/subsonic-mpd-scrobbler)
-Docker images|[Docker Hub](https://hub.docker.com/r/giof71/subsonic-mpd-scrobbler)
+Source code|[GitHub](https://github.com/GioF71/mpd-subsonic-scrobbler)
+Docker images|[Docker Hub](https://hub.docker.com/r/giof71/mpd-subsonic-scrobbler)
 
 ## Available Archs on Docker Hub
 
@@ -72,7 +72,7 @@ networks:
 
 services:
   scrobbler:
-    image: giof71/subsonic-mpd-scrobbler:latest
+    image: giof71/mpd-subsonic-scrobbler:latest
     container_name: subsonic-scrobbler-d10
     networks:
       - mpd
@@ -99,7 +99,7 @@ networks:
 
 services:
   scrobbler:
-    image: giof71/subsonic-mpd-scrobbler:latest
+    image: giof71/mpd-subsonic-scrobbler:latest
     container_name: subsonic-scrobbler-d10
     networks:
       - mpd
