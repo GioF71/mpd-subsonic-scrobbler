@@ -19,7 +19,7 @@ Sorry for the inconvenience
 PROJECT|Git Repo(s)
 :---|:---
 [Music Player Daemon](https://www.musicpd.org/)|On [GitHub](https://github.com/MusicPlayerDaemon/MPD)
-[Upmpdcli](https://www.lesbonscomptes.com/upmpdcli/pages/upmpdcli-manual.html)|Upstream [1](https://framagit.org/medoc92/upmpdcli), [2](https://codeberg.org/medoc/upmpdcli). My fork [1](https://framagit.org/giof71/upmpdcli), [2](https://codeberg.org/giof71/upmpdcli)
+[Upmpdcli](https://www.lesbonscomptes.com/upmpdcli/pages/upmpdcli-manual.html)|[Framagit](https://framagit.org/medoc92/upmpdcli) [Mirror](https://codeberg.org/medoc/upmpdcli). [My Fork](https://framagit.org/giof71/upmpdcli) [Mirror](https://codeberg.org/giof71/upmpdcli)
 mpd-alsa-docker|[GitHub](https://github.com/GioF71/mpd-alsa-docker)
 upmpdcli-docker|[GitHub](https://github.com/GioF71/upmpdcli-docker)
 subsonic-connector|[GitHub](https://github.com/GioF71/subsonic-connector)
