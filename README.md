@@ -9,13 +9,13 @@ It might be useful when using the Subsonic plugin for Upmpdcli. See the discussi
 
 ### Related projects
 
-PROJECT|HOMEPAGE|Git Repo(s)
-:---|:---|:---
-Music Player Daemon|[Music Player Daemon](https://www.musicpd.org/)|On [GitHub](https://github.com/MusicPlayerDaemon/MPD)
-Upmpdcli|[Upmpdcli](https://www.lesbonscomptes.com/upmpdcli/pages/upmpdcli-manual.html)|Upstream on [Framagit](https://framagit.org/medoc92/upmpdcli) and [Codeberg](https://codeberg.org/medoc/upmpdcli). My fork on [Framagit](https://framagit.org/giof71/upmpdcli) and [Codeberg](https://codeberg.org/giof71/upmpdcli)
-mpd-alsa-docker|-|[GitHub](https://github.com/GioF71/mpd-alsa-docker)
-upmpdcli-docker|-|[GitHub](https://github.com/GioF71/upmpdcli-docker)
-subsonic-connector|-|[GitHub](https://github.com/GioF71/subsonic-connector)
+PROJECT|Git Repo(s)
+:---|:---
+[Music Player Daemon](https://www.musicpd.org/)|On [GitHub](https://github.com/MusicPlayerDaemon/MPD)
+[Upmpdcli](https://www.lesbonscomptes.com/upmpdcli/pages/upmpdcli-manual.html)|Upstream on [Framagit](https://framagit.org/medoc92/upmpdcli) and [Codeberg](https://codeberg.org/medoc/upmpdcli). My fork on [Framagit](https://framagit.org/giof71/upmpdcli) and [Codeberg](https://codeberg.org/giof71/upmpdcli)
+mpd-alsa-docker|[GitHub](https://github.com/GioF71/mpd-alsa-docker)
+upmpdcli-docker|[GitHub](https://github.com/GioF71/upmpdcli-docker)
+subsonic-connector|[GitHub](https://github.com/GioF71/subsonic-connector)
 
 The last two provide a simple way to deploy mpd and upmpdcli using docker.  
 
