@@ -32,7 +32,7 @@ jobs:
           echo "REF: ["$ref"]"
 
           distro_id=${{ matrix.base }}
-          image_name=${{secrets.DOCKER_USERNAME}}/subsonic-mpd-scrobbler
+          image_name=${{secrets.DOCKER_USERNAME}}/mpd-subsonic-scrobbler
 
           declare -A base_image_from_matrix
           base_image_from_matrix[python]=library/python

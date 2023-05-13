@@ -20,6 +20,6 @@ jobs:
         with:
           user: ${{ secrets.DOCKER_USERNAME }}
           pass: ${{ secrets.DOCKER_TOKEN }}
-          slug: ${{ secrets.DOCKER_USERNAME }}/subsonic-mpd-scrobbler
+          slug: ${{ secrets.DOCKER_USERNAME }}/mpd-subsonic-scrobbler
           readme: ./README.md
           description: A simple SubSonic Scrobbler for MPD

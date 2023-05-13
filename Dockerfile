@@ -20,7 +20,7 @@ ENV SLEEP_TIME ""
 ENV VERBOSE ""
 
 RUN mkdir /code
-COPY subsonic_mpd_scrobbler/*.py /code/
+COPY mpd_subsonic_scrobbler/*.py /code/
 
 VOLUME /config
 
