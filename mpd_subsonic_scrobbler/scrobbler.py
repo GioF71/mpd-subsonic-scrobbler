@@ -5,7 +5,7 @@ import mpd
 from urllib.parse import urlparse
 from urllib.parse import parse_qs
 
-from config import get_env_value
+from config import get_env_value, get_indexed_env_value
 
 from subsonic_connector.connector import Connector
 from subsonic_connector.response import Response
@@ -13,26 +13,42 @@ from subsonic_connector.song import Song
 
 from scrobbler_config import ScrobblerConfig
 
+from config_key import ConfigKey
 from context_key import ContextKey
 from context import Context
 
 sleep_time_msec : str = get_env_value("SLEEP_TIME", "1000")
-print(f"sleep_time_msec [{sleep_time_msec}]")
+print(f"SLEEP_TIME: [{sleep_time_msec}] msec")
 
 sleep_time_sec : float = float(sleep_time_msec) / 1000.0
-print(f"sleep_time_sec {sleep_time_sec}")
+#print(f"sleep_time_sec {sleep_time_sec}")
 
 min_coverage : int = int(get_env_value("MIN_COVERAGE", "50"))
+print(f"MIN_COVERAGE: [{min_coverage}%]")
+
 verbose : bool = True if int(get_env_value("VERBOSE", "0")) == 1 else False
-print(f"verbose [{verbose}]")
+print(f"VERBOSE: [{verbose}]")
 
 mpd_host : str = get_env_value("MPD_HOST", "localhost")
 mpd_port : str = get_env_value("MPD_PORT", "6600")
 
-print(f"MPD_HOST=[{mpd_host}]")
-print(f"MPD_PORT=[{mpd_port}]")
+print(f"MPD_HOST: [{mpd_host}]")
+print(f"MPD_PORT: [{mpd_port}]")
 
 scrobbler_config : ScrobblerConfig = ScrobblerConfig()
+
+def getScrobblerConfigList() -> list[ScrobblerConfig]:
+    c_list : list[ScrobblerConfig] = list()
+    config_index : int
+    for config_index in range(10):
+        config_file_name : str = get_indexed_env_value(ConfigKey.SUBSONIC_PARAMETERS_FILE.getKey(), config_index)
+        server_url : str = get_indexed_env_value(ConfigKey.SUBSONIC_BASE_URL.getKey(), config_index)
+        if config_file_name or server_url:
+            current_config : ScrobblerConfig = ScrobblerConfig(config_index)
+            c_list.append(current_config)
+    return c_list
+
+scrobbler_config_list : list[ScrobblerConfig] = getScrobblerConfigList()
 
 server_url : str = scrobbler_config.getBaseUrl()
 server_port : str = scrobbler_config.getPort()
@@ -77,15 +93,15 @@ def get_mpd_current_song_file(context : Context) -> str:
 def get_mpd_current_song_time(context : Context) -> str:
     return __get_mpd_current_song_property(context, "time")
 
-def get_subsonic_track_id(context : Context) -> str:
+def get_subsonic_track_id(context : Context, scrobbler_config : ScrobblerConfig) -> str:
     song_file : str = get_mpd_current_song_file(context)
     parsed_url = urlparse(song_file)
     cmp_url : str = f'{parsed_url.scheme}://{parsed_url.hostname}'
-    if not cmp_url == scrobbler_config.getBaseUrl(): return False
-    if not parsed_url.port == int(scrobbler_config.getPort()): return False
+    if not cmp_url == scrobbler_config.getBaseUrl(): return None
+    if not parsed_url.port == int(scrobbler_config.getPort()): return None
     url_username : str = parse_qs(parsed_url.query)['u'][0]
     username : str = scrobbler_config.getUserName()
-    if not url_username == username: return False
+    if not url_username == username: return None
     parse_result = parse_qs(parsed_url.query)
     id : str = parse_result["id"][0] if "id" in parse_result else None
     return id
@@ -112,7 +128,9 @@ def iteration(context : Context):
     get_mpd_current_song(context)
     print_current_song(context)
     song_file : str = get_mpd_current_song_file(context)
-    subsonic_track_id : str = get_subsonic_track_id(context) if song_file else None
+    subsonic_track_id : str = (get_subsonic_track_id(context, scrobbler_config) 
+        if song_file 
+        else None)
     if subsonic_track_id:
         same_song : bool = True
         song : Song = context.get(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT)
