@@ -7,6 +7,9 @@ class ConfigKey(Enum):
     SUBSONIC_USER = 2, "SUBSONIC_USER"
     SUBSONIC_PASSWORD = 3, "SUBSONIC_PASSWORD"
     SUBSONIC_PARAMETERS_FILE = 4, "SUBSONIC_PARAMETERS_FILE"
+    
+    MPD_HOST = 5, "MPD_HOST"
+    MPD_PORT = 6, "MPD_PORT"
 
     def __init__(self, num, element_key : str):
         self.num = num

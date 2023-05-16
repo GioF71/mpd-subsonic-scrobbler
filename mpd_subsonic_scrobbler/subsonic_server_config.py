@@ -5,8 +5,7 @@ from config_key import ConfigKey
 import dotenv
 import libsonic
 
-
-class ScrobblerConfig(Configuration):
+class SubsonicServerConfig(Configuration):
 
     __KEY_BASE_URL : str = ConfigKey.SUBSONIC_BASE_URL.getKey()
     __KEY_PORT : str = ConfigKey.SUBSONIC_PORT.getKey()
@@ -24,15 +23,15 @@ class ScrobblerConfig(Configuration):
             self.__dict = dotenv.dotenv_values(dotenv_path = self.__subsonic_file)
         else:
             param_name : str
-            for param_name in ScrobblerConfig.__PARAM_LIST:
+            for param_name in SubsonicServerConfig.__PARAM_LIST:
                 self.__dict[param_name] = get_indexed_env_value(param_name, index) 
 
     #def __load_env_value(self, target_dict : dict[str, str], env_name : str):
     #    self.__dict[env_name] = get_env_value(env_name) 
 
-    def getBaseUrl(self) -> str: return self.__dict[ScrobblerConfig.__KEY_BASE_URL]
-    def getPort(self) -> int: return self.__dict[ScrobblerConfig.__KEY_PORT]
-    def getUserName(self) -> str: return self.__dict[ScrobblerConfig.__KEY_USER]
-    def getPassword(self) -> str: return self.__dict[ScrobblerConfig.__KEY_PASSWORD]
+    def getBaseUrl(self) -> str: return self.__dict[SubsonicServerConfig.__KEY_BASE_URL]
+    def getPort(self) -> int: return self.__dict[SubsonicServerConfig.__KEY_PORT]
+    def getUserName(self) -> str: return self.__dict[SubsonicServerConfig.__KEY_USER]
+    def getPassword(self) -> str: return self.__dict[SubsonicServerConfig.__KEY_PASSWORD]
     def getApiVersion(self) -> str: return libsonic.API_VERSION
     def getAppName(self) -> str: return "upmpdcli"

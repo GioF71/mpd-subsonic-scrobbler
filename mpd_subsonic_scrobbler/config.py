@@ -20,7 +20,3 @@ def get_indexed_env_value(name : str, index : int = 0, default_value : any = Non
     ndx_name : str = _get_indexed_name(name, index)
     return get_env_value(name = ndx_name, default_value = default_value)
 
-#test
-print(_get_indexed_name("A"))
-print(_get_indexed_name("A", 0))
-print(_get_indexed_name("A", 1))
