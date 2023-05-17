@@ -54,13 +54,12 @@ def iteration(context : Context):
             changed : str = "new" if not song else "changed"
             old_song = song
             same_song = False
-            print(f"Song [{changed}], loading track {subsonic_track_id} from subsonic server ...")
+            print(f"Song [{changed}], loading TrackId:[{subsonic_track_id}] from subsonic server ...")
             song = subsonic_util.get_song(current_config, subsonic_track_id)
             context.set(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT, song)
             print(f"TrackId:[{subsonic_track_id}] Artist:[{song.getArtist()}] Title:[{song.getTitle()}] retrieved from subsonic server.")
-        current_track_duration : float = float(song.getDuration())
         if not same_song:
-            print(f"New subsonic track {subsonic_track_id} playing")
+            print(f"Subsonic TrackId:[{subsonic_track_id}] is playing ...")
             last_scrobbled_track_id : str = context.get(ContextKey.LAST_SCROBBLED_TRACK_ID)
             if (old_song) and (not last_scrobbled_track_id == old_song.getId()):
                 scrobbler_util.was_not_scrobbled(old_song)
@@ -69,6 +68,7 @@ def iteration(context : Context):
             context.set(ContextKey.CURRENT_SUBSONIC_TRACK_ID, song.getId())
             current_track_hit_count : int = 1
             context.set(ContextKey.CURRENT_TRACK_HIT_COUNT, current_track_hit_count)
+            current_track_duration : float = float(song.getDuration())
             min_hit_count : int = int(((float(context.get_config().get_min_coverage()) / 100.0) * current_track_duration) / sleep_time_sec)
             context.set(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT, min_hit_count)
             context.set(ContextKey.CURRENT_TRACK_PLAYBACK_START, pb_start)
