@@ -32,4 +32,4 @@ class SubsonicServerConfig(Configuration):
     def getUserName(self) -> str: return self.__dict[SubsonicServerConfig.__KEY_USER]
     def getPassword(self) -> str: return self.__dict[SubsonicServerConfig.__KEY_PASSWORD]
     def getApiVersion(self) -> str: return libsonic.API_VERSION
-    def getAppName(self) -> str: return "upmpdcli"
+    def getAppName(self) -> str: return "mpd-subsonic-scrobbler"
