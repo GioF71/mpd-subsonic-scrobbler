@@ -11,6 +11,12 @@ class ConfigKey(Enum):
     MPD_HOST = 5, "MPD_HOST"
     MPD_PORT = 6, "MPD_PORT"
 
+    SLEEP_TIME = 7, "SLEEP_TIME"
+    MIN_COVERAGE = 8, "MIN_COVERATE"
+    ENOUGH_PLAYBACK_SEC = 9, "ENOUGH_PLAYBACK_SEC"
+
+    VERBOSE = 10, "VERBOSE"
+
     def __init__(self, num, element_key : str):
         self.num = num
         self.__key : str = element_key

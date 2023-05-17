@@ -1,6 +1,10 @@
 from config_key import ConfigKey
 from subsonic_server_config import SubsonicServerConfig
 from config_util import get_indexed_env_value
+from subsonic_connector.song import Song
+
+def was_not_scrobbled(song : Song):
+    print(f"Song TrackId:[{song.getId()}] Artist:[{song.getArtist()}] Title:[{song.getTitle()}] was not scrobbled.")    
 
 def get_subsonic_server_config_list() -> list[SubsonicServerConfig]:
     c_list : list[SubsonicServerConfig] = list()
