@@ -28,6 +28,16 @@ def print_current_song(context : Context):
     song_time : str = context.get(ContextKey.MPD_STATUS)[MPDStatusKey.TIME.getKey()]
     if context.get_config().get_verbose(): print(f"Playing TrackId:[{context.get(ContextKey.CURRENT_SUBSONIC_TRACK_ID)}] Artist:[{song_artist}] Title:[{song_title}] Time:[{song_time}]")
 
+def show_subsonic_servers(config : ScrobblerConfig, scrobbler_config_list : list[SubsonicServerConfig]):
+    current : SubsonicServerConfig
+    cnt : int = None
+    for current in scrobbler_config_list:
+        cnt = 0 if cnt == None else (cnt + 1)
+        print(f"server[{cnt}].base_url=[{current.getBaseUrl()}]")
+        print(f"server[{cnt}].port=[{current.getPort()}]")
+        if not config.get_redact_credentials(): print(f"server[{cnt}].user=[{current.getUserName()}]")
+        if not config.get_redact_credentials(): print(f"server[{cnt}].password=[{current.getPassword()}]")
+
 def iteration(context : Context):
     mpd_util.get_mpd_current_song(context)
     print_current_song(context)
@@ -104,7 +114,7 @@ print(f"MPD_HOST: [{context.get_config().get_mpd_host()}]")
 print(f"MPD_PORT: [{context.get_config().get_mpd_port()}]")
 
 scrobbler_config_list : list[SubsonicServerConfig] = context.get_config().get_server_list()
-scrobbler_util.show_subsonic_servers(scrobbler_config_list)
+show_subsonic_servers(context.get_config(), scrobbler_config_list)
 
 while True:
     start_time : float = time.time()

@@ -29,13 +29,4 @@ def get_subsonic_server_config_list() -> list[SubsonicServerConfig]:
             c_list.append(current_config)
     return c_list
 
-def show_subsonic_servers(scrobbler_config_list : list[SubsonicServerConfig]):
-    current : SubsonicServerConfig
-    cnt : int = 0
-    for current in scrobbler_config_list:
-        server_url : str = current.getBaseUrl()
-        server_port : str = current.getPort()
-        print(f"server_url[{cnt}]=[{server_url}]")
-        print(f"server_port[{cnt}]==[{server_port}]")
-        cnt += 1
     
