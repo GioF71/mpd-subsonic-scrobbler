@@ -60,6 +60,7 @@ SUBSONIC_USER|Subsonic Username|
 SUBSONIC_PASSWORD|Subsonic password|
 VERBOSE|Verbose output, valid values are `1` and `0`|0
 MIN_COVERAGE|Percent of the song that needs to be played|50
+ENOUGH_PLAYBACK_SEC|Minimum playback time needed for a scrobble, regardless of coverage, defaults to `240`
 SLEEP_TIME|Interval between a coverage check and the next, in millisec|1000
 
 The subsonic configuration parameters are required: either specificy the individual variables, or specify a SUBSONIC_PARAMETERS to indicate the file which will contain the parameters. The file must be accessible to the container. You can use the /config volume and put a file named, e.g. ".subsonic.env" there.  

@@ -21,6 +21,9 @@ sleep_time_sec : float = float(sleep_time_msec) / 1000.0
 min_coverage : int = int(config.get_env_value("MIN_COVERAGE", "50"))
 print(f"MIN_COVERAGE: [{min_coverage}%]")
 
+enough_playback_sec : int = int(config.get_env_value("ENOUGH_PLAYBACK_SEC", "240"))
+print(f"ENOUGH_PLAYBACK_SEC: [{enough_playback_sec} sec]")
+
 verbose : bool = True if int(config.get_env_value("VERBOSE", "0")) == 1 else False
 print(f"VERBOSE: [{verbose}]")
 
@@ -92,23 +95,44 @@ def iteration(context : Context):
             if (old_song) and (not last_scrobbled_track_id == old_song.getId()):
                 print(f"Last song TrackId:[{old_song.getId()}] Artist:[{old_song.getArtist()}] Title:[{old_song.getTitle()}] was not scrobbled.")
             # update current_subsonic_track_id and reset counter
+            pb_start : float = time.time()
             context.set(ContextKey.CURRENT_SUBSONIC_TRACK_ID, song.getId())
             current_track_hit_count : int = 1
             context.set(ContextKey.CURRENT_TRACK_HIT_COUNT, current_track_hit_count)
             min_hit_count : int = int(((float(min_coverage) / 100.0) * current_track_duration) / sleep_time_sec)
             context.set(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT, min_hit_count)
+            context.set(ContextKey.CURRENT_TRACK_PLAYBACK_START, pb_start)
         last_scrobbled_track_id : str = context.get(ContextKey.LAST_SCROBBLED_TRACK_ID)
         if not last_scrobbled_track_id == subsonic_track_id:
+            scrobble_required : bool = False
             current_track_hit_count : int = context.get(ContextKey.CURRENT_TRACK_HIT_COUNT)
-            current_track_hit_count += 1
-            context.set(ContextKey.CURRENT_TRACK_HIT_COUNT, current_track_hit_count)
-            curr_min_hit_count : int = context.get(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT)
-            if verbose:
-                print(f"Current song hit_count {current_track_hit_count} current_track_min_hit_count {curr_min_hit_count} duration {current_track_duration}")
-            if current_track_hit_count >= curr_min_hit_count and not last_scrobbled_track_id == subsonic_track_id:
+            current_track_playback_start : float = context.get(ContextKey.CURRENT_TRACK_PLAYBACK_START)
+            current_time : float =time.time()
+            played_time : float = current_time - current_track_playback_start
+            if played_time >= float(enough_playback_sec):
+                if verbose: print(f"Scrobble required because enough playback time [{enough_playback_sec}] sec has elapsed")
+                scrobble_required = True
+            if not scrobble_required: 
+                current_track_hit_count += 1
+                context.set(ContextKey.CURRENT_TRACK_HIT_COUNT, current_track_hit_count)
+                curr_min_hit_count : int = context.get(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT)
+                if verbose: print(f"Current song hit_count:[{current_track_hit_count}] current_track_min_hit_count:[{curr_min_hit_count}] duration:[{current_track_duration}]")
+                if current_track_hit_count >= curr_min_hit_count and not last_scrobbled_track_id == subsonic_track_id:
+                    if verbose: print(f"Scrobble required because min playback time has elapsed")
+                    scrobble_required = True
+            if scrobble_required:
                 execute_scrobbling(current_config, song)
                 context.set(ContextKey.LAST_SCROBBLED_TRACK_ID, song.getId())   
                 context.set(ContextKey.CURRENT_TRACK_HIT_COUNT, 0)   
+
+def clean_playback_state(context : Context):
+    context.delete(ContextKey.CURRENT_MPD_SONG)
+    context.delete(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT)
+    context.delete(ContextKey.CURRENT_SUBSONIC_TRACK_ID)
+    context.delete(ContextKey.CURRENT_TRACK_HIT_COUNT)
+    context.delete(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT)
+    context.delete(ContextKey.CURRENT_TRACK_PLAYBACK_START)
+    context.delete(ContextKey.LAST_SCROBBLED_TRACK_ID)
 
 scrobbler_config_list : list[SubsonicServerConfig] = get_subsonic_server_config_list()
 
@@ -146,14 +170,9 @@ while True:
         except Exception as e:
             print(f"Iteration failed [{e}]")
     elif mpd_util.State.STOP.get() == current_state:
-        if context.get(ContextKey.CURRENT_MPD_SONG):
-            if verbose: print(f"Remove some data from context ...")
-            context.delete(ContextKey.CURRENT_MPD_SONG)
-            context.delete(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT)
-            context.delete(ContextKey.CURRENT_SUBSONIC_TRACK_ID)
-            context.delete(ContextKey.CURRENT_TRACK_HIT_COUNT)
-            context.delete(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT)
-            if verbose: print(f"Data removal complete.")
+        if verbose: print(f"Remove some data from context ...")
+        clean_playback_state(context)
+        if verbose: print(f"Data removal complete.")
 
     # reduce drifting
     iteration_elapsed_sec : float = time.time() - start_time

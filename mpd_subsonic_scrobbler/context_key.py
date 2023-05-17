@@ -14,6 +14,7 @@ class ContextKey(Enum):
     CURRENT_TRACK_HIT_COUNT = 60, "current_track_hit_count"
     CURRENT_TRACK_MIN_HIT_COUNT = 70, "current_track_min_hit_count"
     CURRENT_SUBSONIC_CONFIG = 80, "current_subsonic_config"
+    CURRENT_TRACK_PLAYBACK_START = 90, "current_track_playback_start"
 
     def __init__(self, num, element_key : str):
         self.num = num
