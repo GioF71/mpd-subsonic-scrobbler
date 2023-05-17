@@ -26,7 +26,7 @@ def get_mpd_state(context : Context) -> str:
 
 def get_mpd_status(context : Context) -> dict[str, str]:
     client : mpd.MPDClient = mpd.MPDClient()
-    client.connect(context.get_config().get_mpd_host(), int(context.get_config().get_mpd_port()))
+    client.connect(context.get_config().get_mpd_host(), context.get_config().get_mpd_port())
     status : dict = client.status()
     context.set(ContextKey.MPD_STATUS, status)
     client.disconnect()
@@ -34,7 +34,7 @@ def get_mpd_status(context : Context) -> dict[str, str]:
 
 def get_mpd_current_song(context : Context) -> dict[str, str]:
     client : mpd.MPDClient = mpd.MPDClient()
-    client.connect(context.get_config().get_mpd_host(), int(context.get_config().get_mpd_port()))
+    client.connect(context.get_config().get_mpd_host(), context.get_config().get_mpd_port())
     current_song : dict[str, str] = client.currentsong()
     context.set(ContextKey.CURRENT_MPD_SONG, current_song)
     client.disconnect()

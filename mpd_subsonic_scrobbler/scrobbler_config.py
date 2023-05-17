@@ -14,7 +14,7 @@ class ScrobblerConfig:
         self.__verbose : bool = True if int(self.__read_env(ConfigKey.VERBOSE)) == 1 else False
         self.__redact_credentials : bool = True if int(self.__read_env(ConfigKey.REDACT_CREDENTIALS)) == 1 else False
         self.__mpd_host : str = self.__read_env(ConfigKey.MPD_HOST)
-        self.__mpd_port : str = self.__read_env(ConfigKey.MPD_PORT)
+        self.__mpd_port : int = int(self.__read_env(ConfigKey.MPD_PORT))
         self.__server_list : list[SubsonicServerConfig] = scrobbler_util.get_subsonic_server_config_list()
 
     def __read_env(self, config_key : ConfigKey) -> str:
@@ -27,5 +27,5 @@ class ScrobblerConfig:
     def get_verbose(self) -> bool: return self.__verbose
     def get_redact_credentials(self) -> bool: return self.__redact_credentials
     def get_mpd_host(self) -> str: return self.__mpd_host
-    def get_mpd_port(self) -> str: return self.__mpd_port
+    def get_mpd_port(self) -> int: return self.__mpd_port
     def get_server_list(self) -> list[SubsonicServerConfig]: return copy.deepcopy(self.__server_list)
