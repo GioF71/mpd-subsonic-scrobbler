@@ -24,7 +24,7 @@ def scrobble(subsonic_server_config : SubsonicServerConfig, song_id : str) -> di
 
 def get_subsonic_track_id(
         context : Context, 
-        scrobbler_config_list : list[SubsonicServerConfig]) -> str:
+        scrobbler_config_list : list[SubsonicServerConfig]) -> tuple[str, SubsonicServerConfig]:
     current_config : SubsonicServerConfig
     for current_config in scrobbler_config_list:
         id : str = __get_subsonic_track_id_for_config(context, current_config)

@@ -16,16 +16,6 @@ from context import Context
 __app_name : str = "mpd-subsonic-scrobbler"
 __app_release : str = "0.1.2"
 
-def show_subsonic_servers(scrobbler_config_list : list[SubsonicServerConfig]):
-    current : SubsonicServerConfig
-    cnt : int = 0
-    for current in scrobbler_config_list:
-        server_url : str = current.getBaseUrl()
-        server_port : str = current.getPort()
-        print(f"server_url[{cnt}]=[{server_url}]")
-        print(f"server_port[{cnt}]==[{server_port}]")
-        cnt += 1
-    
 def execute_scrobbling(subsonic_server_config : SubsonicServerConfig, song : Song) -> dict:
     print(f"About to scrobble subsonic TrackId:[{song.getId()}] Artist:[{song.getArtist()}] Title:[{song.getTitle()}] now ...")
     scrobble_result : dict = subsonic_util.scrobble(subsonic_server_config, song.getId())
@@ -128,8 +118,8 @@ print(f"MPD_HOST: [{mpd_host}]")
 print(f"MPD_PORT: [{mpd_port}]")
 
 scrobbler_config_list : list[SubsonicServerConfig] = scrobbler_util.get_subsonic_server_config_list()
+scrobbler_util.show_subsonic_servers(scrobbler_config_list)
 
-show_subsonic_servers(scrobbler_config_list)
 context : Context = Context()
 
 context.set(ContextKey.MPD_HOST, mpd_host)
