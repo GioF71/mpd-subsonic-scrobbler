@@ -4,7 +4,6 @@ import mpd_util
 import subsonic_util
 import config
 
-from subsonic_connector.response import Response
 from subsonic_connector.song import Song
 
 from subsonic_server_config import SubsonicServerConfig
