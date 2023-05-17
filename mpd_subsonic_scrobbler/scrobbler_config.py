@@ -7,15 +7,19 @@ import copy
 class ScrobblerConfig:
 
     def __init__(self):
-        self.__sleep_time_msec : str = config_util.get_env_value(ConfigKey.SLEEP_TIME.getKey(), "1000")
+        #self.__sleep_time_msec : str = config_util.get_env_value(ConfigKey.SLEEP_TIME.getKey(), "1000")
+        self.__sleep_time_msec : str = self.__read_env(ConfigKey.SLEEP_TIME)
         self.__sleep_time_sec : float = float(self.__sleep_time_msec) / 1000.0
-        self.__min_coverage : int = int(config_util.get_env_value(ConfigKey.MIN_COVERAGE.getKey(), "50"))
-        self.__enough_playback_sec : int = int(config_util.get_env_value(ConfigKey.ENOUGH_PLAYBACK_SEC.getKey(), "240"))
-        self.__verbose : bool = True if int(config_util.get_env_value(ConfigKey.VERBOSE.getKey(), "0")) == 1 else False
-        self.__redact_credentials : bool = True if int(config_util.get_env_value(ConfigKey.REDACT_CREDENTIALS.getKey(), "1")) == 1 else False
-        self.__mpd_host : str = config_util.get_env_value(ConfigKey.MPD_HOST.getKey(), "localhost")
-        self.__mpd_port : str = config_util.get_env_value(ConfigKey.MPD_PORT.getKey(), "6600")
+        self.__min_coverage : int = int(self.__read_env(ConfigKey.MIN_COVERAGE))
+        self.__enough_playback_sec : int = int(self.__read_env(ConfigKey.ENOUGH_PLAYBACK_SEC))
+        self.__verbose : bool = True if int(self.__read_env(ConfigKey.VERBOSE)) == 1 else False
+        self.__redact_credentials : bool = True if int(self.__read_env(ConfigKey.REDACT_CREDENTIALS)) == 1 else False
+        self.__mpd_host : str = self.__read_env(ConfigKey.MPD_HOST)
+        self.__mpd_port : str = self.__read_env(ConfigKey.MPD_PORT)
         self.__server_list : list[SubsonicServerConfig] = scrobbler_util.get_subsonic_server_config_list()
+
+    def __read_env(self, config_key : ConfigKey) -> str:
+        return config_util.get_env_value(config_key.getKey(), config_key.get_default_value())
 
     def get_sleep_time_msec(self) -> str: return self.__sleep_time_msec
     def get_sleep_time_sec(self) -> float: return self.__sleep_time_sec    
