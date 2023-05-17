@@ -2,6 +2,19 @@ from config_key import ConfigKey
 from subsonic_server_config import SubsonicServerConfig
 from config_util import get_indexed_env_value
 from subsonic_connector.song import Song
+from context_key import ContextKey
+
+from typing import Callable
+
+def clean_playback_state(context_remover : Callable[[ContextKey], any]):
+    context_remover(ContextKey.CURRENT_MPD_SONG)
+    context_remover(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT)
+    context_remover(ContextKey.CURRENT_SUBSONIC_TRACK_ID)
+    context_remover(ContextKey.CURRENT_TRACK_HIT_COUNT)
+    context_remover(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT)
+    context_remover(ContextKey.CURRENT_TRACK_PLAYBACK_START)
+    context_remover(ContextKey.LAST_SCROBBLED_TRACK_ID)
+
 
 def was_not_scrobbled(song : Song):
     print(f"Song TrackId:[{song.getId()}] Artist:[{song.getArtist()}] Title:[{song.getTitle()}] was not scrobbled.")    

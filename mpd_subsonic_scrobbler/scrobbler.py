@@ -27,15 +27,6 @@ def print_current_song(context : Context):
     song_time : str = context.get(ContextKey.MPD_STATUS)["time"]
     if context.get_config().get_verbose(): print(f"Playing TrackId:[{context.get(ContextKey.CURRENT_SUBSONIC_TRACK_ID)}] Artist:[{song_artist}] Title:[{song_title}] Time:[{song_time}]")
 
-def clean_playback_state(context : Context):
-    context.delete(ContextKey.CURRENT_MPD_SONG)
-    context.delete(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT)
-    context.delete(ContextKey.CURRENT_SUBSONIC_TRACK_ID)
-    context.delete(ContextKey.CURRENT_TRACK_HIT_COUNT)
-    context.delete(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT)
-    context.delete(ContextKey.CURRENT_TRACK_PLAYBACK_START)
-    context.delete(ContextKey.LAST_SCROBBLED_TRACK_ID)
-
 def iteration(context : Context):
     mpd_util.get_mpd_current_song(context)
     print_current_song(context)
@@ -153,7 +144,7 @@ while True:
             mpd_util.State.STOP.get() == current_state and 
             not last_state == current_state):
             if context.get_config().get_verbose(): print(f"Remove some data from context ...")
-            clean_playback_state(context)
+            scrobbler_util.clean_playback_state(lambda x: context.delete(x))
             if context.get_config().get_verbose(): print(f"Data removal complete.")
 
     # reduce drifting
