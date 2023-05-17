@@ -18,7 +18,7 @@ class ConfigKey(Enum):
 
     REDACT_CREDENTIALS = 11, "REDACT_CREDENTIALS", "1"
 
-    VERBOSE = 10, "VERBOSE", "0"
+    VERBOSE = 12, "VERBOSE", "0"
 
     def __init__(self, num, element_key : str, default_value : str = None):
         self.num = num
