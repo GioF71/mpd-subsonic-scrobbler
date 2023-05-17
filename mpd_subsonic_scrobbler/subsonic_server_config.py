@@ -27,9 +27,6 @@ class SubsonicServerConfig(Configuration):
             for param_name in SubsonicServerConfig.__PARAM_LIST:
                 self.__dict[param_name] = get_indexed_env_value(param_name, index) 
 
-    #def __load_env_value(self, target_dict : dict[str, str], env_name : str):
-    #    self.__dict[env_name] = get_env_value(env_name) 
-
     def getBaseUrl(self) -> str: return self.__dict[SubsonicServerConfig.__KEY_BASE_URL]
     def getPort(self) -> int: return self.__dict[SubsonicServerConfig.__KEY_PORT]
     def getUserName(self) -> str: return self.__dict[SubsonicServerConfig.__KEY_USER]
