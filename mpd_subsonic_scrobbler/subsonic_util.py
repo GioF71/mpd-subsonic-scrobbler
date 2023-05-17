@@ -8,6 +8,7 @@ from urllib.parse import parse_qs
 from subsonic_connector.connector import Connector
 from subsonic_connector.response import Response
 from subsonic_connector.song import Song
+from subsonic_track_id import SubsonicTrackId
 
 def __get_connector(subsonic_server_config : SubsonicServerConfig) -> Connector:
     return Connector(subsonic_server_config)
@@ -24,11 +25,11 @@ def scrobble(subsonic_server_config : SubsonicServerConfig, song_id : str) -> di
 
 def get_subsonic_track_id(
         context : Context, 
-        scrobbler_config_list : list[SubsonicServerConfig]) -> tuple[str, SubsonicServerConfig]:
+        scrobbler_config_list : list[SubsonicServerConfig]) -> SubsonicTrackId:
     current_config : SubsonicServerConfig
     for current_config in scrobbler_config_list:
         id : str = __get_subsonic_track_id_for_config(context, current_config)
-        if id: return id, current_config
+        if id: return SubsonicTrackId(id, current_config)
 
 def __get_subsonic_track_id_for_config(
         context : Context, 

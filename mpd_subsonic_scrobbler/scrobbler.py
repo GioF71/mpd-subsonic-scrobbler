@@ -12,6 +12,7 @@ from config_util import get_env_value
 from config_key import ConfigKey
 from context_key import ContextKey
 from context import Context
+from subsonic_track_id import SubsonicTrackId
 
 __app_name : str = "mpd-subsonic-scrobbler"
 __app_release : str = "0.1.2"
@@ -32,12 +33,12 @@ def iteration(context : Context):
     mpd_util.get_mpd_current_song(context)
     print_current_song(context)
     song_file : str = mpd_util.get_mpd_current_song_file(context)
-    current_config : SubsonicServerConfig
-    subsonic_track_id : str
-    subsonic_track_id, current_config = (subsonic_util.get_subsonic_track_id(context, scrobbler_config_list) 
+    subsonic_track_id_result : SubsonicTrackId = (subsonic_util.get_subsonic_track_id(context, scrobbler_config_list) 
         if song_file 
         else None)
-    if subsonic_track_id:
+    if subsonic_track_id_result and subsonic_track_id_result.get_track_id():
+        subsonic_track_id : str = subsonic_track_id_result.get_track_id()
+        current_config : SubsonicServerConfig = subsonic_track_id_result.get_server_config() 
         context.set(ContextKey.CURRENT_SUBSONIC_CONFIG, current_config)
         same_song : bool = True
         song : Song = context.get(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT)
@@ -66,7 +67,6 @@ def iteration(context : Context):
         last_scrobbled_track_id : str = context.get(ContextKey.LAST_SCROBBLED_TRACK_ID)
         if not last_scrobbled_track_id == subsonic_track_id:
             scrobble_required : bool = False
-            current_track_hit_count : int = context.get(ContextKey.CURRENT_TRACK_HIT_COUNT)
             current_track_playback_start : float = context.get(ContextKey.CURRENT_TRACK_PLAYBACK_START)
             current_time : float =time.time()
             played_time : float = current_time - current_track_playback_start
@@ -74,6 +74,7 @@ def iteration(context : Context):
                 if verbose: print(f"Scrobble required because enough playback time [{enough_playback_sec}] sec has elapsed")
                 scrobble_required = True
             if not scrobble_required: 
+                current_track_hit_count : int = context.get(ContextKey.CURRENT_TRACK_HIT_COUNT)
                 current_track_hit_count += 1
                 context.set(ContextKey.CURRENT_TRACK_HIT_COUNT, current_track_hit_count)
                 curr_min_hit_count : int = context.get(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT)
