@@ -84,9 +84,8 @@ def iteration(context : Context):
             old_song = song
             same_song = False
             print(f"Song changed, loading track {subsonic_track_id} from subsonic server ...")
-            response : Response[Song] = subsonic_util.get_connector(current_config).getSong(subsonic_track_id)
-            if response.isOk(): context.set(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT, response.getObj())
-            song = response.getObj()
+            song = subsonic_util.get_song(current_config, subsonic_track_id)
+            context.set(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT, song)
             print(f"TrackId:[{subsonic_track_id}] Artist:[{song.getArtist()}] Title:[{song.getTitle()}] retrieved from subsonic server.")
         current_track_duration : float = float(song.getDuration())
         if not same_song:
@@ -144,11 +143,11 @@ context.set(ContextKey.MPD_PORT, int(mpd_port))
 
 while True:
     start_time : float = time.time()
+    last_state : str = context.get(ContextKey.MPD_LAST_STATE)
     current_state : str = None
     try:
         status : dict = mpd_util.get_mpd_status(context)
         current_state : str = mpd_util.get_mpd_state(context)
-        last_state : str = context.get(ContextKey.MPD_LAST_STATE)
         if not current_state == last_state:
             context.set(ContextKey.MPD_LAST_STATE, current_state)
             print(f"Current state is [{current_state}]")
@@ -169,7 +168,9 @@ while True:
             iteration(context)
         except Exception as e:
             print(f"Iteration failed [{e}]")
-    elif mpd_util.State.STOP.get() == current_state:
+    elif (last_state and 
+            mpd_util.State.STOP.get() == current_state and 
+            not last_state == current_state):
         if verbose: print(f"Remove some data from context ...")
         clean_playback_state(context)
         if verbose: print(f"Data removal complete.")

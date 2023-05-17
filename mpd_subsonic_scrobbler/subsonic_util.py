@@ -6,12 +6,21 @@ from urllib.parse import urlparse
 from urllib.parse import parse_qs
 
 from subsonic_connector.connector import Connector
+from subsonic_connector.response import Response
+from subsonic_connector.song import Song
 
-def get_connector(subsonic_server_config : SubsonicServerConfig) -> Connector:
+def __get_connector(subsonic_server_config : SubsonicServerConfig) -> Connector:
     return Connector(subsonic_server_config)
 
+def get_song(
+        current_config : SubsonicServerConfig, 
+        song_id : str) -> Song:
+    response : Response[Song] = __get_connector(current_config).getSong(song_id)
+    if response.isOk(): return response.getObj()
+    raise Exception(f"Cannot get song for id {song_id}")
+
 def scrobble(subsonic_server_config : SubsonicServerConfig, song_id : str) -> dict:
-    return get_connector(subsonic_server_config).scrobble(song_id)
+    return __get_connector(subsonic_server_config).scrobble(song_id)
 
 def get_subsonic_track_id(
         context : Context, 
