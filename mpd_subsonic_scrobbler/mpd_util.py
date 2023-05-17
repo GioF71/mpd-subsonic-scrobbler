@@ -19,8 +19,8 @@ class State(Enum):
 
 def get_mpd_state(context : Context) -> str:
     status : str = context.get(ContextKey.MPD_STATUS)
-    mpd_status : str = (status[MPDStatusKey.STATE.getKey()] 
-        if status and MPDStatusKey.STATE.getKey() in status 
+    mpd_status : str = (status[MPDStatusKey.STATE.get_key()] 
+        if status and MPDStatusKey.STATE.get_key() in status 
         else None)
     return mpd_status
 
@@ -41,16 +41,16 @@ def get_mpd_current_song(context : Context) -> dict[str, str]:
     return current_song
 
 def get_mpd_current_song_artist(context : Context) -> str:
-    return __get_mpd_current_song_property(context, MPDStatusKey.ARTIST.getKey())
+    return __get_mpd_current_song_property(context, MPDStatusKey.ARTIST.get_key())
 
 def get_mpd_current_song_title(context : Context) -> str:
-    return __get_mpd_current_song_property(context, MPDStatusKey.TITLE.getKey())
+    return __get_mpd_current_song_property(context, MPDStatusKey.TITLE.get_key())
 
 def get_mpd_current_song_file(context : Context) -> str:
-    return __get_mpd_current_song_property(context, MPDStatusKey.FILE.getKey())
+    return __get_mpd_current_song_property(context, MPDStatusKey.FILE.get_key())
 
 def get_mpd_current_song_time(context : Context) -> str:
-    return __get_mpd_current_song_property(context, MPDStatusKey.TIME.getKey())
+    return __get_mpd_current_song_property(context, MPDStatusKey.TIME.get_key())
 
 def __get_mpd_current_song_property(context : Context, property : str) -> str:
     current_song : dict[str, str] = context.get(ContextKey.CURRENT_MPD_SONG)

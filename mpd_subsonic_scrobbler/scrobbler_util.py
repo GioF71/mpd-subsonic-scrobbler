@@ -22,8 +22,8 @@ def get_subsonic_server_config_list() -> list[SubsonicServerConfig]:
     c_list : list[SubsonicServerConfig] = list()
     config_index : int
     for config_index in range(10):
-        config_file_name : str = get_indexed_env_value(ConfigKey.SUBSONIC_PARAMETERS_FILE.getKey(), config_index)
-        server_url : str = get_indexed_env_value(ConfigKey.SUBSONIC_BASE_URL.getKey(), config_index)
+        config_file_name : str = get_indexed_env_value(ConfigKey.SUBSONIC_PARAMETERS_FILE.get_key(), config_index)
+        server_url : str = get_indexed_env_value(ConfigKey.SUBSONIC_BASE_URL.get_key(), config_index)
         if config_file_name or server_url:
             current_config : SubsonicServerConfig = SubsonicServerConfig(config_index)
             c_list.append(current_config)

@@ -8,18 +8,18 @@ import libsonic
 
 class SubsonicServerConfig(Configuration):
 
-    __KEY_BASE_URL : str = ConfigKey.SUBSONIC_BASE_URL.getKey()
-    __KEY_PORT : str = ConfigKey.SUBSONIC_PORT.getKey()
-    __KEY_USER : str = ConfigKey.SUBSONIC_USER.getKey()
-    __KEY_PASSWORD : str = ConfigKey.SUBSONIC_PASSWORD.getKey()
-    __KEY_CREDENTIALS : str = ConfigKey.SUBSONIC_CREDENTIALS.getKey()
+    __KEY_BASE_URL : str = ConfigKey.SUBSONIC_BASE_URL.get_key()
+    __KEY_PORT : str = ConfigKey.SUBSONIC_PORT.get_key()
+    __KEY_USER : str = ConfigKey.SUBSONIC_USER.get_key()
+    __KEY_PASSWORD : str = ConfigKey.SUBSONIC_PASSWORD.get_key()
+    __KEY_CREDENTIALS : str = ConfigKey.SUBSONIC_CREDENTIALS.get_key()
 
     __PARAM_LIST : list[str] = [__KEY_BASE_URL, __KEY_PORT, __KEY_USER, __KEY_PASSWORD, __KEY_CREDENTIALS]
 
     def __init__(self, index : int = 0):
         self.__dict : dict[str, str] = {}
         self.__subsonic_file : str = get_indexed_env_value(
-            ConfigKey.SUBSONIC_PARAMETERS_FILE.getKey(), 
+            ConfigKey.SUBSONIC_PARAMETERS_FILE.get_key(), 
             index)
         if self.__subsonic_file:
             self.__dict = dotenv.dotenv_values(dotenv_path = self.__subsonic_file)

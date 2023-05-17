@@ -12,5 +12,5 @@ class MPDStatusKey(Enum):
         self.num = num
         self.__key : str = element_key
 
-    def getKey(self) -> str:
+    def get_key(self) -> str:
         return self.__key

@@ -25,7 +25,7 @@ class ConfigKey(Enum):
         self.__key : str = element_key
         self.__default_value : str = default_value
 
-    def getKey(self) -> str:
+    def get_key(self) -> str:
         return self.__key
 
     def get_default_value(self) -> str | None:
