@@ -1,12 +1,25 @@
 from context import Context
 from context_key import ContextKey
+from enum import Enum
 
 import mpd 
 
-def is_mpd_playing(context : Context) -> bool:
+class State(Enum):
+
+    PLAY = 0, "play"
+
+    def __init__(self, num, state : str):
+        self.num = num
+        self.__state : str = state
+
+    def get(self) -> str:
+        return self.__state
+
+
+def get_mpd_state(context : Context) -> str:
     status : str = context.get(ContextKey.MPD_STATUS)
     mpd_status : str = status["state"] if status and "state" in status else None
-    return mpd_status == "play"
+    return mpd_status
 
 def get_mpd_status(context : Context) -> dict[str, str]:
     client : mpd.MPDClient = mpd.MPDClient()

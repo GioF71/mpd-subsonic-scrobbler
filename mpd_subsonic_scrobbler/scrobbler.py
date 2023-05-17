@@ -2,9 +2,7 @@ import time
 
 import mpd_util
 import subsonic_util
-
-from config import get_env_value
-from config import get_indexed_env_value
+import config
 
 from subsonic_connector.response import Response
 from subsonic_connector.song import Song
@@ -15,19 +13,19 @@ from config_key import ConfigKey
 from context_key import ContextKey
 from context import Context
 
-sleep_time_msec : str = get_env_value("SLEEP_TIME", "1000")
+sleep_time_msec : str = config.get_env_value("SLEEP_TIME", "1000")
 print(f"SLEEP_TIME: [{sleep_time_msec}] msec")
 
 sleep_time_sec : float = float(sleep_time_msec) / 1000.0
 
-min_coverage : int = int(get_env_value("MIN_COVERAGE", "50"))
+min_coverage : int = int(config.get_env_value("MIN_COVERAGE", "50"))
 print(f"MIN_COVERAGE: [{min_coverage}%]")
 
-verbose : bool = True if int(get_env_value("VERBOSE", "0")) == 1 else False
+verbose : bool = True if int(config.get_env_value("VERBOSE", "0")) == 1 else False
 print(f"VERBOSE: [{verbose}]")
 
-mpd_host : str = get_env_value(ConfigKey.MPD_HOST.getKey(), "localhost")
-mpd_port : str = get_env_value(ConfigKey.MPD_PORT.getKey(), "6600")
+mpd_host : str = config.get_env_value(ConfigKey.MPD_HOST.getKey(), "localhost")
+mpd_port : str = config.get_env_value(ConfigKey.MPD_PORT.getKey(), "6600")
 
 print(f"MPD_HOST: [{mpd_host}]")
 print(f"MPD_PORT: [{mpd_port}]")
@@ -36,8 +34,8 @@ def get_subsonic_server_config_list() -> list[SubsonicServerConfig]:
     c_list : list[SubsonicServerConfig] = list()
     config_index : int
     for config_index in range(10):
-        config_file_name : str = get_indexed_env_value(ConfigKey.SUBSONIC_PARAMETERS_FILE.getKey(), config_index)
-        server_url : str = get_indexed_env_value(ConfigKey.SUBSONIC_BASE_URL.getKey(), config_index)
+        config_file_name : str = config.get_indexed_env_value(ConfigKey.SUBSONIC_PARAMETERS_FILE.getKey(), config_index)
+        server_url : str = config.get_indexed_env_value(ConfigKey.SUBSONIC_BASE_URL.getKey(), config_index)
         if config_file_name or server_url:
             current_config : SubsonicServerConfig = SubsonicServerConfig(config_index)
             c_list.append(current_config)
@@ -121,10 +119,16 @@ context.set(ContextKey.MPD_HOST, mpd_host)
 context.set(ContextKey.MPD_PORT, int(mpd_port))
 
 while True:
+    start_time : float = time.time()
     mpd_playing : bool = False
     try:
         status : dict = mpd_util.get_mpd_status(context)
-        mpd_playing = mpd_util.is_mpd_playing(context)
+        current_state : str = mpd_util.get_mpd_state(context)
+        last_state : str = context.get(ContextKey.MPD_LAST_STATE)
+        if not current_state == last_state:
+            context.set(ContextKey.MPD_LAST_STATE, current_state)
+            print(f"Current state is [{current_state}]")
+        mpd_playing = mpd_util.State.PLAY.get() == current_state
         context.delete(ContextKey.MPD_LAST_EXCEPTION)
     except Exception as e:
         last_exception = context.get(ContextKey.MPD_LAST_EXCEPTION)
@@ -141,5 +145,9 @@ while True:
         except Exception as e:
             print(f"Iteration failed [{e}]")
 
-    time.sleep(sleep_time_sec)
+    # reduce drifting
+    iteration_elapsed_sec : float = time.time() - start_time
+    to_wait_sec : float = sleep_time_sec - iteration_elapsed_sec
+
+    if to_wait_sec > 0.0: time.sleep(sleep_time_sec)
     
