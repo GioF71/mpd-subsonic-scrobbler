@@ -6,7 +6,11 @@ def get_env_value(name : str, default_value : any = None) -> any:
     if not val: return default_value
     return val
 
-def _get_indexed_name(name : str, index : int = 0) -> str:
+def get_indexed_env_value(name : str, index : int = 0, default_value : any = None) -> any:
+    ndx_name : str = __get_indexed_name(name, index)
+    return get_env_value(name = ndx_name, default_value = default_value)
+
+def __get_indexed_name(name : str, index : int = 0) -> str:
     if not name: raise Exception(f"name cannot be empty")
     if index:
         if not isinstance(index, int): raise Exception("index is not int")
@@ -15,8 +19,4 @@ def _get_indexed_name(name : str, index : int = 0) -> str:
     ndx : int = int(index) if index else 0
     ndx_name : str = name if ndx == 0 else f"{name}_{ndx}"
     return ndx_name
-
-def get_indexed_env_value(name : str, index : int = 0, default_value : any = None) -> any:
-    ndx_name : str = _get_indexed_name(name, index)
-    return get_env_value(name = ndx_name, default_value = default_value)
 
