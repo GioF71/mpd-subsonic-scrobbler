@@ -12,25 +12,8 @@ from config_key import ConfigKey
 from context_key import ContextKey
 from context import Context
 
-sleep_time_msec : str = config.get_env_value("SLEEP_TIME", "1000")
-print(f"SLEEP_TIME: [{sleep_time_msec}] msec")
-
-sleep_time_sec : float = float(sleep_time_msec) / 1000.0
-
-min_coverage : int = int(config.get_env_value("MIN_COVERAGE", "50"))
-print(f"MIN_COVERAGE: [{min_coverage}%]")
-
-enough_playback_sec : int = int(config.get_env_value("ENOUGH_PLAYBACK_SEC", "240"))
-print(f"ENOUGH_PLAYBACK_SEC: [{enough_playback_sec} sec]")
-
-verbose : bool = True if int(config.get_env_value("VERBOSE", "0")) == 1 else False
-print(f"VERBOSE: [{verbose}]")
-
-mpd_host : str = config.get_env_value(ConfigKey.MPD_HOST.getKey(), "localhost")
-mpd_port : str = config.get_env_value(ConfigKey.MPD_PORT.getKey(), "6600")
-
-print(f"MPD_HOST: [{mpd_host}]")
-print(f"MPD_PORT: [{mpd_port}]")
+__app_name : str = "mpd-subsonic-scrobbler"
+__app_release : str = "0.1.2"
 
 def get_subsonic_server_config_list() -> list[SubsonicServerConfig]:
     c_list : list[SubsonicServerConfig] = list()
@@ -131,6 +114,28 @@ def clean_playback_state(context : Context):
     context.delete(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT)
     context.delete(ContextKey.CURRENT_TRACK_PLAYBACK_START)
     context.delete(ContextKey.LAST_SCROBBLED_TRACK_ID)
+
+print(f"{__app_name} version {__app_release}")
+
+sleep_time_msec : str = config.get_env_value("SLEEP_TIME", "1000")
+print(f"SLEEP_TIME: [{sleep_time_msec}] msec")
+
+sleep_time_sec : float = float(sleep_time_msec) / 1000.0
+
+min_coverage : int = int(config.get_env_value("MIN_COVERAGE", "50"))
+print(f"MIN_COVERAGE: [{min_coverage}%]")
+
+enough_playback_sec : int = int(config.get_env_value("ENOUGH_PLAYBACK_SEC", "240"))
+print(f"ENOUGH_PLAYBACK_SEC: [{enough_playback_sec} sec]")
+
+verbose : bool = True if int(config.get_env_value("VERBOSE", "0")) == 1 else False
+print(f"VERBOSE: [{verbose}]")
+
+mpd_host : str = config.get_env_value(ConfigKey.MPD_HOST.getKey(), "localhost")
+mpd_port : str = config.get_env_value(ConfigKey.MPD_PORT.getKey(), "6600")
+
+print(f"MPD_HOST: [{mpd_host}]")
+print(f"MPD_PORT: [{mpd_port}]")
 
 scrobbler_config_list : list[SubsonicServerConfig] = get_subsonic_server_config_list()
 
