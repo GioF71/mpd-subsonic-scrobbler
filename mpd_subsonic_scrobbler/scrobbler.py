@@ -1,6 +1,7 @@
 import time
 
 import mpd_util
+import mpd_status_key
 import subsonic_util
 import scrobbler_util
 
@@ -24,7 +25,7 @@ def execute_scrobbling(subsonic_server_config : SubsonicServerConfig, song : Son
 def print_current_song(context : Context):
     song_artist : str = mpd_util.get_mpd_current_song_artist(context)
     song_title : str = mpd_util.get_mpd_current_song_title(context)
-    song_time : str = context.get(ContextKey.MPD_STATUS)["time"]
+    song_time : str = context.get(ContextKey.MPD_STATUS)[mpd_status_key.MPDStatusKey.TIME.getKey()]
     if context.get_config().get_verbose(): print(f"Playing TrackId:[{context.get(ContextKey.CURRENT_SUBSONIC_TRACK_ID)}] Artist:[{song_artist}] Title:[{song_title}] Time:[{song_time}]")
 
 def iteration(context : Context):
