@@ -1,5 +1,6 @@
 from subsonic_connector.configuration import Configuration
-from config import get_env_value, get_indexed_env_value
+from config_util import get_indexed_env_value
+
 from config_key import ConfigKey
 
 import dotenv

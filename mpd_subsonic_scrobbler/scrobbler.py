@@ -2,29 +2,19 @@ import time
 
 import mpd_util
 import subsonic_util
-import config
+import scrobbler_util
 
 from subsonic_connector.song import Song
 
 from subsonic_server_config import SubsonicServerConfig
 
+from config_util import get_env_value
 from config_key import ConfigKey
 from context_key import ContextKey
 from context import Context
 
 __app_name : str = "mpd-subsonic-scrobbler"
 __app_release : str = "0.1.2"
-
-def get_subsonic_server_config_list() -> list[SubsonicServerConfig]:
-    c_list : list[SubsonicServerConfig] = list()
-    config_index : int
-    for config_index in range(10):
-        config_file_name : str = config.get_indexed_env_value(ConfigKey.SUBSONIC_PARAMETERS_FILE.getKey(), config_index)
-        server_url : str = config.get_indexed_env_value(ConfigKey.SUBSONIC_BASE_URL.getKey(), config_index)
-        if config_file_name or server_url:
-            current_config : SubsonicServerConfig = SubsonicServerConfig(config_index)
-            c_list.append(current_config)
-    return c_list
 
 def show_subsonic_servers(scrobbler_config_list : list[SubsonicServerConfig]):
     current : SubsonicServerConfig
@@ -117,27 +107,27 @@ def clean_playback_state(context : Context):
 
 print(f"{__app_name} version {__app_release}")
 
-sleep_time_msec : str = config.get_env_value("SLEEP_TIME", "1000")
+sleep_time_msec : str = get_env_value("SLEEP_TIME", "1000")
 print(f"SLEEP_TIME: [{sleep_time_msec}] msec")
 
 sleep_time_sec : float = float(sleep_time_msec) / 1000.0
 
-min_coverage : int = int(config.get_env_value("MIN_COVERAGE", "50"))
+min_coverage : int = int(get_env_value("MIN_COVERAGE", "50"))
 print(f"MIN_COVERAGE: [{min_coverage}%]")
 
-enough_playback_sec : int = int(config.get_env_value("ENOUGH_PLAYBACK_SEC", "240"))
+enough_playback_sec : int = int(get_env_value("ENOUGH_PLAYBACK_SEC", "240"))
 print(f"ENOUGH_PLAYBACK_SEC: [{enough_playback_sec} sec]")
 
-verbose : bool = True if int(config.get_env_value("VERBOSE", "0")) == 1 else False
+verbose : bool = True if int(get_env_value("VERBOSE", "0")) == 1 else False
 print(f"VERBOSE: [{verbose}]")
 
-mpd_host : str = config.get_env_value(ConfigKey.MPD_HOST.getKey(), "localhost")
-mpd_port : str = config.get_env_value(ConfigKey.MPD_PORT.getKey(), "6600")
+mpd_host : str = get_env_value(ConfigKey.MPD_HOST.getKey(), "localhost")
+mpd_port : str = get_env_value(ConfigKey.MPD_PORT.getKey(), "6600")
 
 print(f"MPD_HOST: [{mpd_host}]")
 print(f"MPD_PORT: [{mpd_port}]")
 
-scrobbler_config_list : list[SubsonicServerConfig] = get_subsonic_server_config_list()
+scrobbler_config_list : list[SubsonicServerConfig] = scrobbler_util.get_subsonic_server_config_list()
 
 show_subsonic_servers(scrobbler_config_list)
 context : Context = Context()
