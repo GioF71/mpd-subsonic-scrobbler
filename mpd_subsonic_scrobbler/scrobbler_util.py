@@ -15,7 +15,6 @@ def clean_playback_state(context_remover : Callable[[ContextKey], any]):
     context_remover(ContextKey.CURRENT_TRACK_PLAYBACK_START)
     context_remover(ContextKey.LAST_SCROBBLED_TRACK_ID)
 
-
 def was_not_scrobbled(song : Song):
     print(f"Song TrackId:[{song.getId()}] Artist:[{song.getArtist()}] Title:[{song.getTitle()}] was not scrobbled.")    
 
