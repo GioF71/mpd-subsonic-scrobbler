@@ -120,7 +120,7 @@ context.set(ContextKey.MPD_PORT, int(mpd_port))
 
 while True:
     start_time : float = time.time()
-    mpd_playing : bool = False
+    current_state : str = None
     try:
         status : dict = mpd_util.get_mpd_status(context)
         current_state : str = mpd_util.get_mpd_state(context)
@@ -128,22 +128,32 @@ while True:
         if not current_state == last_state:
             context.set(ContextKey.MPD_LAST_STATE, current_state)
             print(f"Current state is [{current_state}]")
-        mpd_playing = mpd_util.State.PLAY.get() == current_state
         context.delete(ContextKey.MPD_LAST_EXCEPTION)
     except Exception as e:
         last_exception = context.get(ContextKey.MPD_LAST_EXCEPTION)
-        same_exception : bool = last_exception and (last_exception[0] == e.args[0] and last_exception[1] == e.args[1])
+        same_exception : bool = (last_exception and 
+            (last_exception[0] == e.args[0] and 
+             last_exception[1] == e.args[1]))
         if not same_exception:
-            e_tuple = (e.args[0], e.args[1])
+            e_tuple : tuple[any, any] = (e.args[0], e.args[1])
             context.set(ContextKey.MPD_LAST_EXCEPTION, e_tuple)
         if not same_exception:
             print(f"Cannot get mpd state [{e}]")
 
-    if mpd_playing:
+    if mpd_util.State.PLAY.get() == current_state:
         try:
             iteration(context)
         except Exception as e:
             print(f"Iteration failed [{e}]")
+    elif mpd_util.State.STOP.get() == current_state:
+        if context.get(ContextKey.CURRENT_MPD_SONG):
+            if verbose: print(f"Remove some data from context ...")
+            context.delete(ContextKey.CURRENT_MPD_SONG)
+            context.delete(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT)
+            context.delete(ContextKey.CURRENT_SUBSONIC_TRACK_ID)
+            context.delete(ContextKey.CURRENT_TRACK_HIT_COUNT)
+            context.delete(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT)
+            if verbose: print(f"Data removal complete.")
 
     # reduce drifting
     iteration_elapsed_sec : float = time.time() - start_time

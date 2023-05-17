@@ -7,6 +7,7 @@ import mpd
 class State(Enum):
 
     PLAY = 0, "play"
+    STOP = 1, "stop"
 
     def __init__(self, num, state : str):
         self.num = num
