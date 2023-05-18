@@ -70,8 +70,7 @@ def iteration(context : Context):
             context.set(ContextKey.CURRENT_SUBSONIC_TRACK_ID, song.getId())
             current_track_hit_count : int = 1
             context.set(ContextKey.CURRENT_TRACK_HIT_COUNT, current_track_hit_count)
-            current_track_duration : float = float(song.getDuration())
-            min_hit_count : int = int(((float(context.get_config().get_min_coverage()) / 100.0) * current_track_duration) / sleep_time_sec)
+            min_hit_count : int = int(((float(context.get_config().get_min_coverage()) / 100.0) * song.getDuration()) / sleep_time_sec)
             context.set(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT, min_hit_count)
             context.set(ContextKey.CURRENT_TRACK_PLAYBACK_START, pb_start)
         last_scrobbled_track_id : str = context.get(ContextKey.LAST_SCROBBLED_TRACK_ID)
@@ -88,7 +87,7 @@ def iteration(context : Context):
                 current_track_hit_count += 1
                 context.set(ContextKey.CURRENT_TRACK_HIT_COUNT, current_track_hit_count)
                 curr_min_hit_count : int = context.get(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT)
-                if context.get_config().get_verbose(): print(f"Current song hit_count:[{current_track_hit_count}] current_track_min_hit_count:[{curr_min_hit_count}] duration:[{current_track_duration}]")
+                if context.get_config().get_verbose(): print(f"Current song hit_count:[{current_track_hit_count}] current_track_min_hit_count:[{curr_min_hit_count}] duration:[{song.getDuration()}]")
                 if current_track_hit_count >= curr_min_hit_count and not last_scrobbled_track_id == subsonic_track_id:
                     if context.get_config().get_verbose(): print(f"Scrobble required because min playback time has elapsed")
                     scrobble_required = True
