@@ -23,6 +23,8 @@ ENV VERBOSE ""
 
 ENV REDACT_CREDENTIALS ""
 
+ENV PYTHONUNBUFFERED=1
+
 RUN mkdir /code
 COPY mpd_subsonic_scrobbler/*.py /code/
 
@@ -30,4 +32,4 @@ VOLUME /config
 
 WORKDIR /code
 
-ENTRYPOINT [ "PYTHONUNBUFFERED=1 python3", "scrobbler.py" ]
+ENTRYPOINT [ "python3", "scrobbler.py" ]

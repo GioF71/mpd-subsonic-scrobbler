@@ -59,10 +59,11 @@ SUBSONIC_PORT|Subsonic Server Port|
 SUBSONIC_USER|Subsonic Username|
 SUBSONIC_PASSWORD|Subsonic password|
 SUBSONIC_CREDENTIALS|Reference to a file with credentials, alternative to specifying `SUBSONIC_USER` and `SUBSONIC_PASSWORD`|
-VERBOSE|Verbose output, valid values are `1` and `0`|0
 MIN_COVERAGE|Percent of the song that needs to be played|50
 ENOUGH_PLAYBACK_SEC|Minimum playback time needed for a scrobble, regardless of coverage, defaults to `240`
 SLEEP_TIME|Interval between a coverage check and the next, in millisec|1000
+REDACT_CREDENTIALS|If set to `1`, credentials are not displayed on startup
+VERBOSE|Verbose output, valid values are `1` and `0`|0
 
 The subsonic configuration parameters are required: either specificy the individual variables, or specify a SUBSONIC_PARAMETERS to indicate the file which will contain the parameters. The file must be accessible to the container. You can use the /config volume and put a file named, e.g. ".subsonic.env" there.  
 All the SUBSONIC_* variables can be suffixed with `_1`, `_2``_3` etc in order to configure multiple servers.  
