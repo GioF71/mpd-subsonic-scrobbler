@@ -30,4 +30,4 @@ VOLUME /config
 
 WORKDIR /code
 
-ENTRYPOINT [ "python3", "scrobbler.py" ]
+ENTRYPOINT [ "PYTHONUNBUFFERED=1 python3", "scrobbler.py" ]

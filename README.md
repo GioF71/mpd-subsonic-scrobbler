@@ -70,7 +70,7 @@ Inside a single config file, even if it refer to an index > 0, the variable name
 
 ### Example configurations
 
-The following compose file creates a subsonic scrobbler for `mpd-d10`, which is an instance of `mpd-alsa-docker` running on the same host and specifically on the network `mpd`.  
+The following compose file creates a subsonic scrobbler for `mpd-d10` (as it operates on a Topping D10 DAC), which is an instance of `mpd-alsa-docker` running on the same host and specifically on the network `mpd`.  
 Subsonic config is read from a separate file.  
 
 ```text
@@ -88,7 +88,6 @@ services:
     networks:
       - mpd
     environment:
-      - PYTHONUNBUFFERED=1
       - MPD_HOST=mpd-d10
       - MPD_PORT=6600
       - SUBSONIC_PARAMETERS_FILE=/config/my-navidrome.env
@@ -117,7 +116,6 @@ services:
     networks:
       - mpd
     environment:
-      - PYTHONUNBUFFERED=1
       - MPD_HOST=mpd-d10
       - MPD_PORT=6600
       - SUBSONIC_BASE_URL=${MY_NAVIDROME_BASE_URL}
@@ -134,3 +132,19 @@ services:
 
 In this case, the configuration parameters are read from the `.env` file.  
 In order to avoid issues with password, which might contain special characters, it is better to not place such password on the compose file, and leverage the `.env` file instead.  
+
+## Releases
+
+### Release 0.1.2 (2023-05-18)
+
+- Support for multiple subsonic servers
+- Code refactor and cleanup
+- Remove need to set PYTHONUNBUFFERED=1 in compose file
+
+### Release 0.1.1 (2023-05-13)
+
+- Mostly documentation changes
+
+### Release 0.1.0 (Initial Release, 2023-05-12) 
+
+- First working release
