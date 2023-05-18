@@ -1,179 +1,166 @@
-import os
 import time
 
-import mpd 
-from urllib.parse import urlparse
-from urllib.parse import parse_qs
+import mpd_util
+import subsonic_util
+import scrobbler_util
 
-from config import get_env_value
-
-from subsonic_connector.connector import Connector
-from subsonic_connector.response import Response
-from subsonic_connector.song import Song
-
+from mpd_status_key import MPDStatusKey
 from scrobbler_config import ScrobblerConfig
+from subsonic_connector.song import Song
+from subsonic_server_config import SubsonicServerConfig
 
 from context_key import ContextKey
 from context import Context
+from subsonic_track_id import SubsonicTrackId
 
-sleep_time_msec : str = get_env_value("SLEEP_TIME", "1000")
-print(f"sleep_time_msec [{sleep_time_msec}]")
+__app_name : str = "mpd-subsonic-scrobbler"
+__app_release : str = "0.1.2"
 
-sleep_time_sec : float = float(sleep_time_msec) / 1000.0
-print(f"sleep_time_sec {sleep_time_sec}")
-
-min_coverage : int = int(get_env_value("MIN_COVERAGE", "50"))
-verbose : bool = True if int(get_env_value("VERBOSE", "0")) == 1 else False
-print(f"verbose [{verbose}]")
-
-mpd_host : str = get_env_value("MPD_HOST", "localhost")
-mpd_port : str = get_env_value("MPD_PORT", "6600")
-
-print(f"MPD_HOST=[{mpd_host}]")
-print(f"MPD_PORT=[{mpd_port}]")
-
-scrobbler_config : ScrobblerConfig = ScrobblerConfig()
-
-server_url : str = scrobbler_config.getBaseUrl()
-server_port : str = scrobbler_config.getPort()
-
-print(f"server_url=[{scrobbler_config.getBaseUrl()}]")
-print(f"server_port=[{scrobbler_config.getPort()}]")
-
-def get_mpd_status(context : Context) -> dict[str, str]:
-    client : mpd.MPDClient = mpd.MPDClient()
-    client.connect(mpd_host, int(mpd_port))
-    status : dict = client.status()
-    context.set(ContextKey.MPD_STATUS, status)
-    client.disconnect()
-    return status
-
-def is_mpd_playing(context : Context) -> bool:
-    status : str = context.get(ContextKey.MPD_STATUS)
-    mpd_status : str = status["state"] if status and "state" in status else None
-    return mpd_status == "play"
-
-def get_mpd_current_song(context : Context) -> dict[str, str]:
-    client : mpd.MPDClient = mpd.MPDClient()
-    client.connect(mpd_host, int(mpd_port))
-    current_song : dict[str, str] = client.currentsong()
-    context.set(ContextKey.CURRENT_MPD_SONG, current_song)
-    client.disconnect()
-    return current_song
-
-def __get_mpd_current_song_property(context : Context, property : str) -> str:
-    current_song : dict[str, str] = context.get(ContextKey.CURRENT_MPD_SONG)
-    return current_song[property] if current_song and property in current_song else None 
-
-def get_mpd_current_song_artist(context : Context) -> str:
-    return __get_mpd_current_song_property(context, "artist")
-
-def get_mpd_current_song_title(context : Context) -> str:
-    return __get_mpd_current_song_property(context, "title")
-
-def get_mpd_current_song_file(context : Context) -> str:
-    return __get_mpd_current_song_property(context, "file")
-
-def get_mpd_current_song_time(context : Context) -> str:
-    return __get_mpd_current_song_property(context, "time")
-
-def get_subsonic_track_id(context : Context) -> str:
-    song_file : str = get_mpd_current_song_file(context)
-    parsed_url = urlparse(song_file)
-    cmp_url : str = f'{parsed_url.scheme}://{parsed_url.hostname}'
-    if not cmp_url == scrobbler_config.getBaseUrl(): return False
-    if not parsed_url.port == int(scrobbler_config.getPort()): return False
-    url_username : str = parse_qs(parsed_url.query)['u'][0]
-    username : str = scrobbler_config.getUserName()
-    if not url_username == username: return False
-    parse_result = parse_qs(parsed_url.query)
-    id : str = parse_result["id"][0] if "id" in parse_result else None
-    return id
-
-def connector() -> Connector:
-    return Connector(scrobbler_config)
-
-def scrobble(song_id : str) -> dict:
-    return connector().scrobble(song_id)
-
-def execute_scrobbling(song : Song) -> dict:
+def execute_scrobbling(subsonic_server_config : SubsonicServerConfig, song : Song) -> dict:
     print(f"About to scrobble subsonic TrackId:[{song.getId()}] Artist:[{song.getArtist()}] Title:[{song.getTitle()}] now ...")
-    scrobble_result : dict = scrobble(song.getId())
+    scrobble_result : dict = subsonic_util.scrobble(subsonic_server_config, song.getId())
     print(f"Scrobbled subsonic TrackId:[{song.getId()}] Artist:[{song.getArtist()}] Title:[{song.getTitle()}]")
     return scrobble_result
 
 def print_current_song(context : Context):
-    song_artist : str = get_mpd_current_song_artist(context)
-    song_title : str = get_mpd_current_song_title(context)
-    song_time : str = context.get(ContextKey.MPD_STATUS)["time"]
-    if verbose: print(f"Playing TrackId:[{context.get(ContextKey.CURRENT_SUBSONIC_TRACK_ID)}] Artist:[{song_artist}] Title:[{song_title}] Time:[{song_time}]")
+    song_artist : str = mpd_util.get_mpd_current_song_artist(context)
+    song_title : str = mpd_util.get_mpd_current_song_title(context)
+    song_time : str = context.get(ContextKey.MPD_STATUS)[MPDStatusKey.TIME.get_key()]
+    if context.get_config().get_verbose(): print(f"Playing TrackId:[{context.get(ContextKey.CURRENT_SUBSONIC_TRACK_ID)}] Artist:[{song_artist}] Title:[{song_title}] Time:[{song_time}]")
+
+def show_subsonic_servers(config : ScrobblerConfig, scrobbler_config_list : list[SubsonicServerConfig]):
+    current : SubsonicServerConfig
+    cnt : int = None
+    for current in scrobbler_config_list:
+        cnt = 0 if cnt == None else (cnt + 1)
+        print(f"server[{cnt}].base_url=[{current.getBaseUrl()}]")
+        print(f"server[{cnt}].port=[{current.getPort()}]")
+        if not config.get_redact_credentials(): print(f"server[{cnt}].user=[{current.getUserName()}]")
+        if not config.get_redact_credentials(): print(f"server[{cnt}].password=[{current.getPassword()}]")
 
 def iteration(context : Context):
-    get_mpd_current_song(context)
+    mpd_util.get_mpd_current_song(context)
     print_current_song(context)
-    song_file : str = get_mpd_current_song_file(context)
-    subsonic_track_id : str = get_subsonic_track_id(context) if song_file else None
-    if subsonic_track_id:
+    song_file : str = mpd_util.get_mpd_current_song_file(context)
+    subsonic_track_id_result : SubsonicTrackId = (subsonic_util.get_subsonic_track_id(context, scrobbler_config_list) 
+        if song_file 
+        else None)
+    if subsonic_track_id_result and subsonic_track_id_result.get_track_id():
+        subsonic_track_id : str = subsonic_track_id_result.get_track_id()
+        current_config : SubsonicServerConfig = subsonic_track_id_result.get_server_config() 
+        context.set(ContextKey.CURRENT_SUBSONIC_CONFIG, current_config)
         same_song : bool = True
         song : Song = context.get(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT)
         old_song : Song = None
         if not song or not song.getId() == subsonic_track_id:
+            changed : str = "new" if not song else "changed"
             old_song = song
             same_song = False
-            print(f"Song changed, loading track {subsonic_track_id} from subsonic server ...")
-            response : Response[Song] = connector().getSong(subsonic_track_id)
-            if response.isOk(): context.set(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT, response.getObj())
-            song = response.getObj()
+            print(f"Song [{changed}], loading TrackId:[{subsonic_track_id}] from subsonic server ...")
+            song = subsonic_util.get_song(current_config, subsonic_track_id)
+            context.set(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT, song)
             print(f"TrackId:[{subsonic_track_id}] Artist:[{song.getArtist()}] Title:[{song.getTitle()}] retrieved from subsonic server.")
-        current_track_duration : float = float(song.getDuration())
         if not same_song:
-            print(f"New subsonic track {subsonic_track_id} playing")
+            print(f"Subsonic TrackId:[{subsonic_track_id}] is playing ...")
             last_scrobbled_track_id : str = context.get(ContextKey.LAST_SCROBBLED_TRACK_ID)
             if (old_song) and (not last_scrobbled_track_id == old_song.getId()):
-                print(f"Last song TrackId:[{old_song.getId()}] Artist:[{old_song.getArtist()}] Title:[{old_song.getTitle()}] was not scrobbled.")
+                scrobbler_util.was_not_scrobbled(old_song)
             # update current_subsonic_track_id and reset counter
+            pb_start : float = time.time()
             context.set(ContextKey.CURRENT_SUBSONIC_TRACK_ID, song.getId())
             current_track_hit_count : int = 1
             context.set(ContextKey.CURRENT_TRACK_HIT_COUNT, current_track_hit_count)
-            min_hit_count : int = int(((float(min_coverage) / 100.0) * current_track_duration) / sleep_time_sec)
+            min_hit_count : int = int(((float(context.get_config().get_min_coverage()) / 100.0) * song.getDuration()) / sleep_time_sec)
             context.set(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT, min_hit_count)
+            context.set(ContextKey.CURRENT_TRACK_PLAYBACK_START, pb_start)
         last_scrobbled_track_id : str = context.get(ContextKey.LAST_SCROBBLED_TRACK_ID)
         if not last_scrobbled_track_id == subsonic_track_id:
-            current_track_hit_count : int = context.get(ContextKey.CURRENT_TRACK_HIT_COUNT)
-            current_track_hit_count += 1
-            context.set(ContextKey.CURRENT_TRACK_HIT_COUNT, current_track_hit_count)
-            curr_min_hit_count : int = context.get(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT)
-            if verbose:
-                print(f"Current song hit_count {current_track_hit_count} current_track_min_hit_count {curr_min_hit_count} duration {current_track_duration}")
-            if current_track_hit_count >= curr_min_hit_count and not last_scrobbled_track_id == subsonic_track_id:
-                execute_scrobbling(song)
+            scrobble_required : bool = False
+            current_track_playback_start : float = context.get(ContextKey.CURRENT_TRACK_PLAYBACK_START)
+            current_time : float =time.time()
+            played_time : float = current_time - current_track_playback_start
+            if played_time >= float(context.get_config().get_enough_playback_sec()):
+                if context.get_config().get_verbose(): print(f"Scrobble required because enough playback time [{context.get_config().get_enough_playback_sec()}] sec has elapsed")
+                scrobble_required = True
+            if not scrobble_required: 
+                current_track_hit_count : int = context.get(ContextKey.CURRENT_TRACK_HIT_COUNT)
+                current_track_hit_count += 1
+                context.set(ContextKey.CURRENT_TRACK_HIT_COUNT, current_track_hit_count)
+                curr_min_hit_count : int = context.get(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT)
+                if context.get_config().get_verbose(): print(f"Current song hit_count:[{current_track_hit_count}] current_track_min_hit_count:[{curr_min_hit_count}] duration:[{song.getDuration()}]")
+                if current_track_hit_count >= curr_min_hit_count and not last_scrobbled_track_id == subsonic_track_id:
+                    if context.get_config().get_verbose(): print(f"Scrobble required because min playback time has elapsed")
+                    scrobble_required = True
+            if scrobble_required:
+                execute_scrobbling(current_config, song)
                 context.set(ContextKey.LAST_SCROBBLED_TRACK_ID, song.getId())   
                 context.set(ContextKey.CURRENT_TRACK_HIT_COUNT, 0)   
 
-context : Context = Context()
+print(f"{__app_name} version {__app_release}")
+
+context : Context = Context(ScrobblerConfig())
+
+sleep_time_msec : str = context.get_config().get_sleep_time_msec()
+print(f"SLEEP_TIME: [{sleep_time_msec}] msec")
+
+sleep_time_sec : float = context.get_config().get_sleep_time_sec()
+
+print(f"MIN_COVERAGE: [{context.get_config().get_min_coverage()}%]")
+print(f"ENOUGH_PLAYBACK_SEC: [{context.get_config().get_enough_playback_sec()} sec]")
+print(f"VERBOSE: [{context.get_config().get_verbose()}]")
+
+print(f"MPD_HOST: [{context.get_config().get_mpd_host()}]")
+print(f"MPD_PORT: [{context.get_config().get_mpd_port()}]")
+
+scrobbler_config_list : list[SubsonicServerConfig] = context.get_config().get_server_list()
+show_subsonic_servers(context.get_config(), scrobbler_config_list)
 
 while True:
-
-    
-    mpd_playing : bool = False
+    start_time : float = time.time()
+    last_state : str = context.get(ContextKey.MPD_LAST_STATE)
+    current_state : str = None
     try:
-        status : dict = get_mpd_status(context)
-        mpd_playing = is_mpd_playing(context)
+        status : dict = mpd_util.get_mpd_status(context)
+        current_state : str = mpd_util.get_mpd_state(context)
+        if not current_state == last_state:
+            context.set(ContextKey.MPD_LAST_STATE, current_state)
+            print(f"Current state is [{current_state}]")
         context.delete(ContextKey.MPD_LAST_EXCEPTION)
     except Exception as e:
         last_exception = context.get(ContextKey.MPD_LAST_EXCEPTION)
-        same_exception : bool = last_exception and (last_exception[0] == e.args[0] and last_exception[1] == e.args[1])
+        same_exception : bool = (last_exception and 
+            (last_exception[0] == e.args[0] and 
+             last_exception[1] == e.args[1]))
         if not same_exception:
-            e_tuple = (e.args[0], e.args[1])
+            e_tuple : tuple[any, any] = (e.args[0], e.args[1])
             context.set(ContextKey.MPD_LAST_EXCEPTION, e_tuple)
         if not same_exception:
             print(f"Cannot get mpd state [{e}]")
 
-    if mpd_playing:
+    if mpd_util.State.PLAY.get() == current_state:
         try:
             iteration(context)
         except Exception as e:
             print(f"Iteration failed [{e}]")
+    elif mpd_util.State.STOP.get() == current_state:
+        # report something not scrobbled?
+        last_scrobbled : str = context.get(ContextKey.LAST_SCROBBLED_TRACK_ID)
+        current_song_id : str = context.get(ContextKey.CURRENT_SUBSONIC_TRACK_ID)
+        if current_song_id and (not current_song_id == last_scrobbled):
+            song : Song = context.get(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT)
+            scrobbler_util.was_not_scrobbled(song)
+        # do cleanup?
+        if (last_state and 
+            mpd_util.State.STOP.get() == current_state and 
+            not last_state == current_state):
+            if context.get_config().get_verbose(): print(f"Remove some data from context ...")
+            scrobbler_util.clean_playback_state(lambda x: context.delete(x))
+            if context.get_config().get_verbose(): print(f"Data removal complete.")
 
-    time.sleep(sleep_time_sec)
+    # reduce drifting
+    iteration_elapsed_sec : float = time.time() - start_time
+    to_wait_sec : float = context.get_config().get_sleep_time_sec() - iteration_elapsed_sec
+
+    # wait as needed
+    if to_wait_sec > 0.0: time.sleep(to_wait_sec)
     

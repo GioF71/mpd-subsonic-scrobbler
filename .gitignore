@@ -1,4 +1,5 @@
 .env
 .subsonic.env
+.subsonic.*.env
 poetry.lock
 */__pycache__/*

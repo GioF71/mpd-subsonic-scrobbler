@@ -58,15 +58,20 @@ SUBSONIC_BASE_URL|Subsonic Server URL, including `http` or `https`|
 SUBSONIC_PORT|Subsonic Server Port|
 SUBSONIC_USER|Subsonic Username|
 SUBSONIC_PASSWORD|Subsonic password|
-VERBOSE|Verbose output, valid values are `1` and `0`|0
+SUBSONIC_CREDENTIALS|Reference to a file with credentials, alternative to specifying `SUBSONIC_USER` and `SUBSONIC_PASSWORD`|
 MIN_COVERAGE|Percent of the song that needs to be played|50
+ENOUGH_PLAYBACK_SEC|Minimum playback time needed for a scrobble, regardless of coverage, defaults to `240`
 SLEEP_TIME|Interval between a coverage check and the next, in millisec|1000
+REDACT_CREDENTIALS|If set to `1`, credentials are not displayed on startup
+VERBOSE|Verbose output, valid values are `1` and `0`|0
 
 The subsonic configuration parameters are required: either specificy the individual variables, or specify a SUBSONIC_PARAMETERS to indicate the file which will contain the parameters. The file must be accessible to the container. You can use the /config volume and put a file named, e.g. ".subsonic.env" there.  
+All the SUBSONIC_* variables can be suffixed with `_1`, `_2``_3` etc in order to configure multiple servers.  
+Inside a single config file, even if it refer to an index > 0, the variable names must be specified without the index.
 
 ### Example configurations
 
-The following compose file creates a subsonic scrobbler for `mpd-d10`, which is an instance of `mpd-alsa-docker` running on the same host and specifically on the network `mpd`.  
+The following compose file creates a subsonic scrobbler for `mpd-d10` (as it operates on a Topping D10 DAC), which is an instance of `mpd-alsa-docker` running on the same host and specifically on the network `mpd`.  
 Subsonic config is read from a separate file.  
 
 ```text
@@ -84,13 +89,14 @@ services:
     networks:
       - mpd
     environment:
-      - PYTHONUNBUFFERED=1
       - MPD_HOST=mpd-d10
       - MPD_PORT=6600
-      - SUBSONIC_PARAMETERS_FILE=/config/subsonic.env
+      - SUBSONIC_PARAMETERS_FILE=/config/my-navidrome.env
+      - SUBSONIC_PARAMETERS_FILE_1=/config/navidrome-demo.env
       - VERBOSE=0
     volumes:
-      - ./navidrome.env:/config/subsonic.env:ro
+      - ./my-navidrome.env:/config/my-navidrome.env:ro
+      - ./navidrome-demo.env:/config/navidrome-demo.env:ro
     restart: unless-stopped
 ```
 
@@ -111,16 +117,35 @@ services:
     networks:
       - mpd
     environment:
-      - PYTHONUNBUFFERED=1
       - MPD_HOST=mpd-d10
       - MPD_PORT=6600
-      - SUBSONIC_BASE_URL=${SUBSONIC_BASE_URL}
-      - SUBSONIC_PORT=${SUBSONIC_PORT}
-      - SUBSONIC_USER=${SUBSONIC_USER}
-      - SUBSONIC_PASSWORD=${SUBSONIC_PASSWORD}
+      - SUBSONIC_BASE_URL=${MY_NAVIDROME_BASE_URL}
+      - SUBSONIC_PORT=${MY_NAVIDROME_PORT}
+      - SUBSONIC_USER=${MY_NAVIDROME_USER}
+      - SUBSONIC_PASSWORD=${MY_NAVIDROME_PASSWORD}
+      - SUBSONIC_BASE_URL_1=${NAVIDROME_DEMO_BASE_URL}
+      - SUBSONIC_PORT_1=${NAVIDROME_DEMO_PORT}
+      - SUBSONIC_USER_1=${NAVIDROME_DEMO_USER}
+      - SUBSONIC_PASSWORD_1=${NAVIDROME_DEMO_PASSWORD}
       - VERBOSE=0
     restart: unless-stopped
 ```
 
 In this case, the configuration parameters are read from the `.env` file.  
 In order to avoid issues with password, which might contain special characters, it is better to not place such password on the compose file, and leverage the `.env` file instead.  
+
+## Releases
+
+### Release 0.1.2 (2023-05-18)
+
+- Support for multiple subsonic servers
+- Code refactor and cleanup
+- Remove need to set PYTHONUNBUFFERED=1 in compose file
+
+### Release 0.1.1 (2023-05-13)
+
+- Mostly documentation changes
+
+### Release 0.1.0 (Initial Release, 2023-05-12) 
+
+- First working release
