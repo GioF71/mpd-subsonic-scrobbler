@@ -65,6 +65,7 @@ jobs:
             if [ "${tag_type}" = "release" ]; then
               echo "release tag";
               echo "Building now: ["$distro_id"]";
+              tags="${tags},$image_name:${tag_name}";
               tags="${tags},$image_name:${distro_id}";
               tags="$tags,$image_name:${distro_id}-${tag_name}"              
               select_special_tags=${special_tags["${distro_id}"]};
