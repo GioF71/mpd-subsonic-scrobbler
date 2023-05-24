@@ -171,7 +171,7 @@ while True:
 
     percent_duration : float = 100.0 * (float(iteration_elapsed_sec) / float(context.get_config().get_sleep_time_sec()))
     if percent_duration > float(context.get_config().get_iteration_duration_threshold_percent()):
-        print(f"Iteration is taking too long [{iteration_elapsed_sec} sec or {percent_duration}% of sleep_time {context.get_config().get_sleep_time_sec()}]")
+        print(f"Iteration is taking too long [{iteration_elapsed_sec} sec] or [{percent_duration}%] of sleep_time [{context.get_config().get_sleep_time_sec()} sec]")
         print(f"Please consider reducing mpd timeout, increasing sleep_time or creating dedicated instances of this scrobbler")
 
     #if to_wait_sec < 0.0:
