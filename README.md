@@ -75,7 +75,7 @@ Inside a single config file, even if it refer to an index > 0, the variable name
 
 ### Example configurations
 
-The following compose file creates a subsonic scrobbler for `mpd-d10` (as it operates on a Topping D10 DAC), which is an instance of `mpd-alsa-docker` running on the same host and specifically on the network `mpd`.  
+The following compose file creates a subsonic scrobbler for `mpd-d10` (as it operates on a Topping D10 DAC) and `mpd-d200` (as it operates on a Yulong D200 DAC), which are instances of `mpd-alsa-docker` running on the same host and specifically on the network `mpd`.  
 Subsonic config is read from a separate file.  
 
 ```text
@@ -95,6 +95,8 @@ services:
     environment:
       - MPD_HOST=mpd-d10
       - MPD_PORT=6600
+      - MPD_HOST_1=mpd-d200
+      - MPD_PORT_1=6600
       - SUBSONIC_PARAMETERS_FILE=/config/my-navidrome.env
       - SUBSONIC_PARAMETERS_FILE_1=/config/navidrome-demo.env
       - VERBOSE=0
@@ -123,6 +125,8 @@ services:
     environment:
       - MPD_HOST=mpd-d10
       - MPD_PORT=6600
+      - MPD_HOST_1=mpd-d200
+      - MPD_PORT_1=6600
       - SUBSONIC_BASE_URL=${MY_NAVIDROME_BASE_URL}
       - SUBSONIC_PORT=${MY_NAVIDROME_PORT}
       - SUBSONIC_USER=${MY_NAVIDROME_USER}
