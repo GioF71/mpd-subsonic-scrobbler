@@ -7,14 +7,14 @@ from context_key import ContextKey
 
 from typing import Callable
 
-def clean_playback_state(context_remover : Callable[[ContextKey], any], index : int):
-    context_remover(context_key = ContextKey.CURRENT_MPD_SONG, index = index)
-    context_remover(context_key = ContextKey.CURRENT_SUBSONIC_SONG_OBJECT, index = index)
-    context_remover(context_key = ContextKey.CURRENT_SUBSONIC_TRACK_ID, index = index)
-    context_remover(context_key = ContextKey.CURRENT_TRACK_HIT_COUNT, index = index)
-    context_remover(context_key = ContextKey.CURRENT_TRACK_MIN_HIT_COUNT, index = index)
-    context_remover(context_key = ContextKey.CURRENT_TRACK_PLAYBACK_START, index = index)
-    context_remover(context_key = ContextKey.LAST_SCROBBLED_TRACK_ID, index = index)
+def clean_playback_state(context_remover : Callable[[ContextKey, int], any], index : int):
+    context_remover(ContextKey.CURRENT_MPD_SONG, index)
+    context_remover(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT, index)
+    context_remover(ContextKey.CURRENT_SUBSONIC_TRACK_ID, index)
+    context_remover(ContextKey.CURRENT_TRACK_HIT_COUNT, index)
+    context_remover(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT, index)
+    context_remover(ContextKey.CURRENT_TRACK_PLAYBACK_START, index)
+    context_remover(ContextKey.LAST_SCROBBLED_TRACK_ID, index)
 
 def was_not_scrobbled(song : Song):
     print(f"Song TrackId:[{song.getId()}] Artist:[{song.getArtist()}] Title:[{song.getTitle()}] was not scrobbled.")    

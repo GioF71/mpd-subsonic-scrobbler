@@ -162,7 +162,7 @@ while True:
                 mpd_util.State.STOP.get() == current_state and 
                 not last_state == current_state):
                 if context.get_config().get_verbose(): print(f"Remove some data from context ...")
-                scrobbler_util.clean_playback_state(lambda x: context.delete(x), index)
+                scrobbler_util.clean_playback_state(lambda x, y: context.delete(context_key = x, index = y), index = index)
                 if context.get_config().get_verbose(): print(f"Data removal complete.")
 
     # reduce drifting
