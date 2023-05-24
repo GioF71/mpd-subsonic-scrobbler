@@ -8,6 +8,7 @@ from mpd_status_key import MPDStatusKey
 from scrobbler_config import ScrobblerConfig
 from subsonic_connector.song import Song
 from subsonic_server_config import SubsonicServerConfig
+from mpd_instance_config import MpdInstanceConfig
 
 from context_key import ContextKey
 from context import Context
@@ -22,11 +23,11 @@ def execute_scrobbling(subsonic_server_config : SubsonicServerConfig, song : Son
     print(f"Scrobbled subsonic TrackId:[{song.getId()}] Artist:[{song.getArtist()}] Title:[{song.getTitle()}]")
     return scrobble_result
 
-def print_current_song(context : Context):
-    song_artist : str = mpd_util.get_mpd_current_song_artist(context)
-    song_title : str = mpd_util.get_mpd_current_song_title(context)
-    song_time : str = context.get(ContextKey.MPD_STATUS)[MPDStatusKey.TIME.get_key()]
-    if context.get_config().get_verbose(): print(f"Playing TrackId:[{context.get(ContextKey.CURRENT_SUBSONIC_TRACK_ID)}] Artist:[{song_artist}] Title:[{song_title}] Time:[{song_time}]")
+def print_current_song(context : Context, index : int):
+    song_artist : str = mpd_util.get_mpd_current_song_artist(context = context, index = index)
+    song_title : str = mpd_util.get_mpd_current_song_title(context = context, index = index)
+    song_time : str = context.get(context_key = ContextKey.MPD_STATUS, index = index)[MPDStatusKey.TIME.get_key()]
+    if context.get_config().get_verbose(): print(f"Playing TrackId:[{context.get(context_key = ContextKey.CURRENT_SUBSONIC_TRACK_ID, index = index)}] Artist:[{song_artist}] Title:[{song_title}] Time:[{song_time}]")
 
 def show_subsonic_servers(config : ScrobblerConfig, scrobbler_config_list : list[SubsonicServerConfig]):
     current : SubsonicServerConfig
@@ -38,19 +39,21 @@ def show_subsonic_servers(config : ScrobblerConfig, scrobbler_config_list : list
         if not config.get_redact_credentials(): print(f"server[{cnt}].user=[{current.getUserName()}]")
         if not config.get_redact_credentials(): print(f"server[{cnt}].password=[{current.getPassword()}]")
 
-def iteration(context : Context):
-    mpd_util.get_mpd_current_song(context)
-    print_current_song(context)
-    song_file : str = mpd_util.get_mpd_current_song_file(context)
-    subsonic_track_id_result : SubsonicTrackId = (subsonic_util.get_subsonic_track_id(context, scrobbler_config_list) 
+def iteration(context : Context, index : int):
+    mpd_util.get_mpd_current_song(context = context, mpd_index = index)
+    print_current_song(context = context, index = index)
+    song_file : str = mpd_util.get_mpd_current_song_file(context = context, index = index)
+    subsonic_track_id_result : SubsonicTrackId = (subsonic_util.get_subsonic_track_id(
+            context = context, 
+            index = index, 
+            scrobbler_config_list = scrobbler_config_list) 
         if song_file 
         else None)
     if subsonic_track_id_result and subsonic_track_id_result.get_track_id():
         subsonic_track_id : str = subsonic_track_id_result.get_track_id()
         current_config : SubsonicServerConfig = subsonic_track_id_result.get_server_config() 
-        context.set(ContextKey.CURRENT_SUBSONIC_CONFIG, current_config)
         same_song : bool = True
-        song : Song = context.get(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT)
+        song : Song = context.get(context_key = ContextKey.CURRENT_SUBSONIC_SONG_OBJECT, index = index)
         old_song : Song = None
         if not song or not song.getId() == subsonic_track_id:
             changed : str = "new" if not song else "changed"
@@ -58,43 +61,43 @@ def iteration(context : Context):
             same_song = False
             print(f"Song [{changed}], loading TrackId:[{subsonic_track_id}] from subsonic server ...")
             song = subsonic_util.get_song(current_config, subsonic_track_id)
-            context.set(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT, song)
+            context.set(context_key = ContextKey.CURRENT_SUBSONIC_SONG_OBJECT, index = index, context_value = song)
             print(f"TrackId:[{subsonic_track_id}] Artist:[{song.getArtist()}] Title:[{song.getTitle()}] retrieved from subsonic server.")
         if not same_song:
             print(f"Subsonic TrackId:[{subsonic_track_id}] is playing ...")
-            last_scrobbled_track_id : str = context.get(ContextKey.LAST_SCROBBLED_TRACK_ID)
+            last_scrobbled_track_id : str = context.get(context_key = ContextKey.LAST_SCROBBLED_TRACK_ID, index = index)
             if (old_song) and (not last_scrobbled_track_id == old_song.getId()):
                 scrobbler_util.was_not_scrobbled(old_song)
             # update current_subsonic_track_id and reset counter
             pb_start : float = time.time()
-            context.set(ContextKey.CURRENT_SUBSONIC_TRACK_ID, song.getId())
+            context.set(context_key = ContextKey.CURRENT_SUBSONIC_TRACK_ID, index = index, context_value = song.getId())
             current_track_hit_count : int = 1
-            context.set(ContextKey.CURRENT_TRACK_HIT_COUNT, current_track_hit_count)
+            context.set(context_key = ContextKey.CURRENT_TRACK_HIT_COUNT, index = index, context_value = current_track_hit_count)
             min_hit_count : int = int(((float(context.get_config().get_min_coverage()) / 100.0) * song.getDuration()) / sleep_time_sec)
-            context.set(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT, min_hit_count)
-            context.set(ContextKey.CURRENT_TRACK_PLAYBACK_START, pb_start)
-        last_scrobbled_track_id : str = context.get(ContextKey.LAST_SCROBBLED_TRACK_ID)
+            context.set(context_key = ContextKey.CURRENT_TRACK_MIN_HIT_COUNT, index = index, context_value = min_hit_count)
+            context.set(context_key = ContextKey.CURRENT_TRACK_PLAYBACK_START, index = index, context_value = pb_start)
+        last_scrobbled_track_id : str = context.get(context_key = ContextKey.LAST_SCROBBLED_TRACK_ID, index = index)
         if not last_scrobbled_track_id == subsonic_track_id:
             scrobble_required : bool = False
-            current_track_playback_start : float = context.get(ContextKey.CURRENT_TRACK_PLAYBACK_START)
-            current_time : float =time.time()
+            current_track_playback_start : float = context.get(context_key = ContextKey.CURRENT_TRACK_PLAYBACK_START, index = index)
+            current_time : float = time.time()
             played_time : float = current_time - current_track_playback_start
             if played_time >= float(context.get_config().get_enough_playback_sec()):
                 if context.get_config().get_verbose(): print(f"Scrobble required because enough playback time [{context.get_config().get_enough_playback_sec()}] sec has elapsed")
                 scrobble_required = True
             if not scrobble_required: 
-                current_track_hit_count : int = context.get(ContextKey.CURRENT_TRACK_HIT_COUNT)
+                current_track_hit_count : int = context.get(context_key = ContextKey.CURRENT_TRACK_HIT_COUNT, index = index)
                 current_track_hit_count += 1
-                context.set(ContextKey.CURRENT_TRACK_HIT_COUNT, current_track_hit_count)
-                curr_min_hit_count : int = context.get(ContextKey.CURRENT_TRACK_MIN_HIT_COUNT)
+                context.set(context_key = ContextKey.CURRENT_TRACK_HIT_COUNT, index = index, context_value = current_track_hit_count)
+                curr_min_hit_count : int = context.get(context_key = ContextKey.CURRENT_TRACK_MIN_HIT_COUNT, index = index)
                 if context.get_config().get_verbose(): print(f"Current song hit_count:[{current_track_hit_count}] current_track_min_hit_count:[{curr_min_hit_count}] duration:[{song.getDuration()}]")
                 if current_track_hit_count >= curr_min_hit_count and not last_scrobbled_track_id == subsonic_track_id:
                     if context.get_config().get_verbose(): print(f"Scrobble required because min playback time has elapsed")
                     scrobble_required = True
             if scrobble_required:
                 execute_scrobbling(current_config, song)
-                context.set(ContextKey.LAST_SCROBBLED_TRACK_ID, song.getId())   
-                context.set(ContextKey.CURRENT_TRACK_HIT_COUNT, 0)   
+                context.set(context_key = ContextKey.LAST_SCROBBLED_TRACK_ID, index = index, context_value = song.getId())   
+                context.set(context_key = ContextKey.CURRENT_TRACK_HIT_COUNT, index = index, context_value = 0)   
 
 print(f"{__app_name} version {__app_release}")
 
@@ -114,53 +117,66 @@ print(f"MPD_PORT: [{context.get_config().get_mpd_port()}]")
 
 scrobbler_config_list : list[SubsonicServerConfig] = context.get_config().get_server_list()
 show_subsonic_servers(context.get_config(), scrobbler_config_list)
+mpd_list : list[MpdInstanceConfig] = context.get_config().get_mpd_list()
 
 while True:
     start_time : float = time.time()
-    last_state : str = context.get(ContextKey.MPD_LAST_STATE)
-    current_state : str = None
-    try:
-        status : dict = mpd_util.get_mpd_status(context)
-        current_state : str = mpd_util.get_mpd_state(context)
-        if not current_state == last_state:
-            context.set(ContextKey.MPD_LAST_STATE, current_state)
-            print(f"Current state is [{current_state}]")
-        context.delete(ContextKey.MPD_LAST_EXCEPTION)
-    except Exception as e:
-        last_exception = context.get(ContextKey.MPD_LAST_EXCEPTION)
-        same_exception : bool = (last_exception and 
-            (last_exception[0] == e.args[0] and 
-             last_exception[1] == e.args[1]))
-        if not same_exception:
-            e_tuple : tuple[any, any] = (e.args[0], e.args[1])
-            context.set(ContextKey.MPD_LAST_EXCEPTION, e_tuple)
-        if not same_exception:
-            print(f"Cannot get mpd state [{e}]")
-
-    if mpd_util.State.PLAY.get() == current_state:
+    index : int
+    for index in range(len(mpd_list)):
+        last_state : str = context.get(context_key = ContextKey.MPD_LAST_STATE, index = index)
+        current_state : str = None
         try:
-            iteration(context)
+            status : dict = mpd_util.get_mpd_status(context, mpd_index = index)
+            current_state : str = mpd_util.get_mpd_state(context, mpd_index = index)
+            if not current_state == last_state:
+                context.set(context_key = ContextKey.MPD_LAST_STATE, index = index, context_value = current_state)
+                print(f"Current mpd state for index {index} is [{current_state}]")
+            context.delete(ContextKey.MPD_LAST_EXCEPTION, index = index)
         except Exception as e:
-            print(f"Iteration failed [{e}]")
-    elif mpd_util.State.STOP.get() == current_state:
-        # report something not scrobbled?
-        last_scrobbled : str = context.get(ContextKey.LAST_SCROBBLED_TRACK_ID)
-        current_song_id : str = context.get(ContextKey.CURRENT_SUBSONIC_TRACK_ID)
-        if current_song_id and (not current_song_id == last_scrobbled):
-            song : Song = context.get(ContextKey.CURRENT_SUBSONIC_SONG_OBJECT)
-            scrobbler_util.was_not_scrobbled(song)
-        # do cleanup?
-        if (last_state and 
-            mpd_util.State.STOP.get() == current_state and 
-            not last_state == current_state):
-            if context.get_config().get_verbose(): print(f"Remove some data from context ...")
-            scrobbler_util.clean_playback_state(lambda x: context.delete(x))
-            if context.get_config().get_verbose(): print(f"Data removal complete.")
+            last_exception = context.get(context_key = ContextKey.MPD_LAST_EXCEPTION, index = index)
+            last_1 : any = last_exception[1] if last_exception and len(last_exception) > 1 else None
+            e_1 : any = e.args[1] if e and e.args and len(e.args) > 1 else None
+            same_exception : bool = (last_exception and 
+                (last_exception[0] == e.args[0] and 
+                last_1 == e_1))
+            if not same_exception:
+                e_tuple : tuple[any, any] = (e.args[0], e.args[1] if len(e.args) > 1 else None)
+                context.set(context_key = ContextKey.MPD_LAST_EXCEPTION, index = index, context_value = e_tuple)
+            if not same_exception:
+                print(f"Cannot get mpd state for index [{index}] [{e}]")
+
+        if mpd_util.State.PLAY.get() == current_state:
+            try:
+                iteration(context = context, index = index)
+            except Exception as e:
+                print(f"Iteration failed [{e}]")
+        elif mpd_util.State.STOP.get() == current_state:
+            # report something not scrobbled?
+            last_scrobbled : str = context.get(context_key = ContextKey.LAST_SCROBBLED_TRACK_ID, index = index)
+            current_song_id : str = context.get(context_key = ContextKey.CURRENT_SUBSONIC_TRACK_ID, index = index)
+            if current_song_id and (not current_song_id == last_scrobbled):
+                song : Song = context.get(context_key = ContextKey.CURRENT_SUBSONIC_SONG_OBJECT, index = index)
+                scrobbler_util.was_not_scrobbled(song)
+            # do cleanup?
+            if (last_state and 
+                mpd_util.State.STOP.get() == current_state and 
+                not last_state == current_state):
+                if context.get_config().get_verbose(): print(f"Remove some data from context ...")
+                scrobbler_util.clean_playback_state(lambda x: context.delete(x), index)
+                if context.get_config().get_verbose(): print(f"Data removal complete.")
 
     # reduce drifting
     iteration_elapsed_sec : float = time.time() - start_time
     to_wait_sec : float = context.get_config().get_sleep_time_sec() - iteration_elapsed_sec
 
+    percent_duration : float = 100.0 * (float(iteration_elapsed_sec) / float(context.get_config().get_sleep_time_sec()))
+    if percent_duration > float(context.get_config().get_iteration_duration_threshold_percent()):
+        print(f"Iteration is taking too long [{iteration_elapsed_sec} sec or {percent_duration}% of sleep_time {context.get_config().get_sleep_time_sec()}]")
+        print(f"Please consider reducing mpd timeout, increasing sleep_time or creating dedicated instances of this scrobbler")
+
+    #if to_wait_sec < 0.0:
+
     # wait as needed
-    if to_wait_sec > 0.0: time.sleep(to_wait_sec)
+    if to_wait_sec > 0.0: 
+        time.sleep(to_wait_sec)
     

@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: scrobbler",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/mpd_subsonic_scrobbler/scrobbler.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",

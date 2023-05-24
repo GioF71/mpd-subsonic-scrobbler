@@ -20,6 +20,13 @@ class ConfigKey(Enum):
 
     VERBOSE = 12, "VERBOSE", "0"
 
+    MAX_SUBSONIC_SERVERS = 13, "MAX_SUBSONIC_SERVERS", "10"
+    MAX_MPD_INSTANCES = 14, "MAX_MPD_INSTANCES", "10"
+
+    MPD_CLIENT_TIMEOUT_SEC = 15, "MPD_CLIENT_TIMEOUT_SEC", "0.05"
+
+    ITERATION_DURATION_THRESHOLD_PERCENT = 15, "ITERATION_DURATION_THRESHOLD_PERCENT", "50"
+
     def __init__(self, num, element_key : str, default_value : str = None):
         self.num = num
         self.__key : str = element_key
