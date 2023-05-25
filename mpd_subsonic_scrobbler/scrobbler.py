@@ -40,7 +40,6 @@ def show_subsonic_servers(config : ScrobblerConfig, scrobbler_config_list : list
         if not config.get_redact_credentials(): print(f"server[{cnt}].password=[{current.getPassword()}]")
 
 def iteration(context : Context, index : int):
-    mpd_util.get_mpd_current_song(context = context, mpd_index = index)
     print_current_song(context = context, index = index)
     song_file : str = mpd_util.get_mpd_current_song_file(context = context, index = index)
     subsonic_track_id_result : SubsonicTrackId = (subsonic_util.get_subsonic_track_id(

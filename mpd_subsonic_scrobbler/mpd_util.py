@@ -40,15 +40,10 @@ def get_mpd_status(context : Context, mpd_index : int = 0) -> dict[str, str]:
     client : mpd.MPDClient = __get_connected_client(context = context, mpd_index = mpd_index)
     status : dict = client.status()
     context.set(context_key = ContextKey.MPD_STATUS, index = mpd_index, context_value = status)
-    client.disconnect()
-    return status
-
-def get_mpd_current_song(context : Context, mpd_index : int = 0) -> dict[str, str]:
-    client : mpd.MPDClient = __get_connected_client(context = context, mpd_index = mpd_index)
     current_song : dict[str, str] = client.currentsong()
     context.set(context_key = ContextKey.CURRENT_MPD_SONG, index = mpd_index, context_value = current_song)
     client.disconnect()
-    return current_song
+    return status
 
 def get_mpd_current_song_artist(context : Context, index : int) -> str:
     return __get_mpd_current_song_property(context = context, index = index, property = MPDStatusKey.ARTIST.get_key())
