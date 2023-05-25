@@ -25,16 +25,18 @@ def scrobble(subsonic_server_config : SubsonicServerConfig, song_id : str) -> di
 
 def get_subsonic_track_id(
         context : Context, 
+        index : int,
         scrobbler_config_list : list[SubsonicServerConfig]) -> SubsonicTrackId:
     current_config : SubsonicServerConfig
     for current_config in scrobbler_config_list:
-        id : str = __get_subsonic_track_id_for_config(context, current_config)
+        id : str = __get_subsonic_track_id_for_config(context = context, index = index, subsonic_server_config = current_config)
         if id: return SubsonicTrackId(id, current_config)
 
 def __get_subsonic_track_id_for_config(
         context : Context, 
+        index : int,
         subsonic_server_config : SubsonicServerConfig) -> str:
-    song_file : str = get_mpd_current_song_file(context)
+    song_file : str = get_mpd_current_song_file(context = context, index = index)
     parsed_url = urlparse(song_file)
     cmp_url : str = f'{parsed_url.scheme}://{parsed_url.hostname}'
     if not cmp_url == subsonic_server_config.getBaseUrl(): return None

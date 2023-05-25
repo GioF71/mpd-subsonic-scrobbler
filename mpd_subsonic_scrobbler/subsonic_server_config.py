@@ -8,13 +8,13 @@ import libsonic
 
 class SubsonicServerConfig(Configuration):
 
-    __KEY_BASE_URL : str = ConfigKey.SUBSONIC_BASE_URL.get_key()
-    __KEY_PORT : str = ConfigKey.SUBSONIC_PORT.get_key()
-    __KEY_USER : str = ConfigKey.SUBSONIC_USER.get_key()
-    __KEY_PASSWORD : str = ConfigKey.SUBSONIC_PASSWORD.get_key()
-    __KEY_CREDENTIALS : str = ConfigKey.SUBSONIC_CREDENTIALS.get_key()
-
-    __PARAM_LIST : list[str] = [__KEY_BASE_URL, __KEY_PORT, __KEY_USER, __KEY_PASSWORD, __KEY_CREDENTIALS]
+    __PARAM_LIST : list[str] = [
+        ConfigKey.SUBSONIC_FRIENDLY_NAME.get_key(), 
+        ConfigKey.SUBSONIC_BASE_URL.get_key(), 
+        ConfigKey.SUBSONIC_PORT.get_key(), 
+        ConfigKey.SUBSONIC_USER.get_key(), 
+        ConfigKey.SUBSONIC_PASSWORD.get_key(), 
+        ConfigKey.SUBSONIC_CREDENTIALS.get_key()]
 
     def __init__(self, index : int = 0):
         self.__dict : dict[str, str] = {}
@@ -24,14 +24,14 @@ class SubsonicServerConfig(Configuration):
         if self.__subsonic_file:
             self.__dict = dotenv.dotenv_values(dotenv_path = self.__subsonic_file)
             self.__check_conflict(index, self.__dict)
-            if SubsonicServerConfig.__KEY_CREDENTIALS in self.__dict:
+            if ConfigKey.SUBSONIC_CREDENTIALS.get_key() in self.__dict:
                 # replace with contents of file
-                cred_dict : dict[str, str] = dotenv.dotenv_values(dotenv_path = self.__dict[SubsonicServerConfig.__KEY_CREDENTIALS])
+                cred_dict : dict[str, str] = dotenv.dotenv_values(dotenv_path = self.__dict[ConfigKey.SUBSONIC_CREDENTIALS.get_key()])
                 # check has credentials
                 self.__check_credentials(index, cred_dict)
-                del self.__dict[SubsonicServerConfig.__KEY_CREDENTIALS]
-                self.__dict[SubsonicServerConfig.__KEY_USER] = cred_dict[SubsonicServerConfig.__KEY_USER]
-                self.__dict[SubsonicServerConfig.__KEY_PASSWORD] = cred_dict[SubsonicServerConfig.__KEY_PASSWORD]
+                del self.__dict[ConfigKey.SUBSONIC_CREDENTIALS.get_key()]
+                self.__dict[ConfigKey.SUBSONIC_USER.get_key()] = cred_dict[ConfigKey.SUBSONIC_USER.get_key()]
+                self.__dict[ConfigKey.SUBSONIC_PASSWORD.get_key()] = cred_dict[ConfigKey.SUBSONIC_PASSWORD.get_key()]
         else:
             param_name : str
             for param_name in SubsonicServerConfig.__PARAM_LIST:
@@ -39,14 +39,14 @@ class SubsonicServerConfig(Configuration):
                 if curr_value:
                     self.__dict[param_name] = curr_value
             self.__check_conflict(index, self.__dict)
-            if SubsonicServerConfig.__KEY_CREDENTIALS in self.__dict:
+            if ConfigKey.SUBSONIC_CREDENTIALS.get_key() in self.__dict:
                 # replace with contents of file
-                cred_dict : dict[str, str] = dotenv.dotenv_values(dotenv_path = self.__dict[SubsonicServerConfig.__KEY_CREDENTIALS])
+                cred_dict : dict[str, str] = dotenv.dotenv_values(dotenv_path = self.__dict[ConfigKey.SUBSONIC_CREDENTIALS.get_key()])
                 # check has credentials
                 self.__check_credentials(index, cred_dict)
-                del self.__dict[SubsonicServerConfig.__KEY_CREDENTIALS]
-                self.__dict[SubsonicServerConfig.__KEY_USER] = cred_dict[SubsonicServerConfig.__KEY_USER]
-                self.__dict[SubsonicServerConfig.__KEY_PASSWORD] = cred_dict[SubsonicServerConfig.__KEY_PASSWORD]
+                del self.__dict[ConfigKey.SUBSONIC_CREDENTIALS.get_key()]
+                self.__dict[ConfigKey.SUBSONIC_USER.get_key()] = cred_dict[ConfigKey.SUBSONIC_USER.get_key()]
+                self.__dict[ConfigKey.SUBSONIC_PASSWORD.get_key()] = cred_dict[ConfigKey.SUBSONIC_PASSWORD.get_key()]
         self.__check(index, self.__dict)
 
     def __check(self, index : int, conf_dict : dict[str, str]):
@@ -55,31 +55,35 @@ class SubsonicServerConfig(Configuration):
         self.__check_complete(index, conf_dict)
 
     def __check_credentials(self, index : int, conf_dict : dict[str, str]):
-        if not (SubsonicServerConfig.__KEY_USER in conf_dict and 
-            SubsonicServerConfig.__KEY_PASSWORD in conf_dict):
+        if not (ConfigKey.SUBSONIC_USER.get_key() in conf_dict and 
+            ConfigKey.SUBSONIC_PASSWORD.get_key() in conf_dict):
             raise Exception(f"Credentials not set for index {index}")
 
     def __check_conflict(self, index : int, conf_dict : dict[str, str]):
-        if (SubsonicServerConfig.__KEY_CREDENTIALS in conf_dict and 
-            SubsonicServerConfig.__KEY_USER in conf_dict and 
-            SubsonicServerConfig.__KEY_PASSWORD in conf_dict):
+        if (ConfigKey.SUBSONIC_CREDENTIALS.get_key() in conf_dict and 
+            ConfigKey.SUBSONIC_USER.get_key() in conf_dict and 
+            ConfigKey.SUBSONIC_PASSWORD.get_key() in conf_dict):
             raise Exception(f"Credentials conflict for index {index}")
 
     def __check_complete(self, index : int, conf_dict : dict[str, str]):
-        if not (SubsonicServerConfig.__KEY_BASE_URL in conf_dict and 
-            SubsonicServerConfig.__KEY_PORT in conf_dict and 
-            SubsonicServerConfig.__KEY_USER in conf_dict and 
-            SubsonicServerConfig.__KEY_PASSWORD in conf_dict):
+        if not (ConfigKey.SUBSONIC_BASE_URL.get_key() in conf_dict and 
+            ConfigKey.SUBSONIC_PORT.get_key() in conf_dict and 
+            ConfigKey.SUBSONIC_USER.get_key() in conf_dict and 
+            ConfigKey.SUBSONIC_PASSWORD.get_key() in conf_dict):
             raise Exception(f"Incomplete settings for index {index}")
 
     def __check_missing(self, index : int, conf_dict : dict[str, str]):
-        if not (SubsonicServerConfig.__KEY_USER in conf_dict and 
-            SubsonicServerConfig.__KEY_PASSWORD in conf_dict):
+        if not (ConfigKey.SUBSONIC_USER.get_key() in conf_dict and 
+            ConfigKey.SUBSONIC_PASSWORD.get_key() in conf_dict):
             raise Exception(f"Credentials missing for index {index}")
 
-    def getBaseUrl(self) -> str: return self.__dict[SubsonicServerConfig.__KEY_BASE_URL]
-    def getPort(self) -> int: return self.__dict[SubsonicServerConfig.__KEY_PORT]
-    def getUserName(self) -> str: return self.__dict[SubsonicServerConfig.__KEY_USER]
-    def getPassword(self) -> str: return self.__dict[SubsonicServerConfig.__KEY_PASSWORD]
+    def get_friendly_name(self) -> str:
+        if ConfigKey.SUBSONIC_FRIENDLY_NAME.get_key() in self.__dict: return self.__dict[ConfigKey.SUBSONIC_FRIENDLY_NAME.get_key()]
+        return f"Server[{self.getBaseUrl()}:{self.getPort()}]"
+
+    def getBaseUrl(self) -> str: return self.__dict[ConfigKey.SUBSONIC_BASE_URL.get_key()]
+    def getPort(self) -> int: return self.__dict[ConfigKey.SUBSONIC_PORT.get_key()]
+    def getUserName(self) -> str: return self.__dict[ConfigKey.SUBSONIC_USER.get_key()]
+    def getPassword(self) -> str: return self.__dict[ConfigKey.SUBSONIC_PASSWORD.get_key()]
     def getApiVersion(self) -> str: return libsonic.API_VERSION
     def getAppName(self) -> str: return "mpd-subsonic-scrobbler"
