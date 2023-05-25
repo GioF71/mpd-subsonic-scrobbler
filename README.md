@@ -146,7 +146,7 @@ In order to avoid issues with password, which might contain special characters, 
 
 ## Releases
 
-### Release 0.1.3 (UNKNOWN)
+### Release 0.2.0 (2023-05-25)
 
 - Support for multiple mpd instances
 

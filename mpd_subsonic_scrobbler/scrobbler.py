@@ -15,7 +15,7 @@ from context import Context
 from subsonic_track_id import SubsonicTrackId
 
 __app_name : str = "mpd-subsonic-scrobbler"
-__app_release : str = "0.1.2"
+__app_release : str = "0.2.0"
 
 def execute_scrobbling(subsonic_server_config : SubsonicServerConfig, song : Song) -> dict:
     print(f"About to scrobble to [{subsonic_server_config.get_friendly_name()}] TrackId:[{song.getId()}] Artist:[{song.getArtist()}] Title:[{song.getTitle()}] now ...")
