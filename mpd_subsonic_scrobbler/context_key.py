@@ -15,6 +15,10 @@ class ContextKey(Enum):
     CURRENT_TRACK_MIN_HIT_COUNT = 70, "current_track_min_hit_count"
     CURRENT_TRACK_PLAYBACK_START = 80, "current_track_playback_start"
 
+    ELAPSED_MPD_STATE = 90, "elapsed_get_mpd_state"
+    ELAPSED_SS_GET_SONG_INFO = 91, "elapsed_ss_get_song_info"
+    ELAPSED_SS_SCROBBLE_SONG = 92, "elapsed_ss_scrobble_song"
+
     def __init__(self, num, element_key : str):
         self.num = num
         self.__key : str = element_key

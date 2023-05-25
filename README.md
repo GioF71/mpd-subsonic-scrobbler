@@ -51,8 +51,10 @@ VOLUME|DESCRIPTION
 
 VARIABLE|DESCRIPTION|DEFAULT
 :---|:---|:---
+MPD_FRIENDLY_NAME|Friendly name of the mpd instance|
 MPD_HOST|MPD hostname|localhost
 MPD_PORT|MPD port|6600
+SUBSONIC_FRIENDLY_NAME|Friendly name of the subsonic server|
 SUBSONIC_PARAMETERS_FILE|Separate config file for subsonic parameters|
 SUBSONIC_BASE_URL|Subsonic Server URL, including `http` or `https`|
 SUBSONIC_PORT|Subsonic Server Port|
@@ -66,7 +68,7 @@ REDACT_CREDENTIALS|If set to `1`, credentials are not displayed on startup
 MAX_SUBSONIC_SERVERS|Max number of SubSonic servers, defaults to `10`
 MAX_MPD_INSTANCES|Max number of MPD instances, defaults to `10`
 MPD_CLIENT_TIMEOUT_SEC|Mpd client timeout, defaults to `0.05` (one value across all mpd instance)
-ITERATION_DURATION_THRESHOLD_PERCENT|If total iteration elapsed time is greater than this percentage of `SLEEP_TIME`, a warning is displayed on the standard output. In this case, you should increase `SLEEP_TIME`, reduce `MPD_CLIENT_TIMEOUT_SEC`, or increase this threshold
+ITERATION_DURATION_THRESHOLD_PERCENT|If total handle_playback elapsed time is greater than this percentage of `SLEEP_TIME`, a warning is displayed on the standard output. In this case, you should increase `SLEEP_TIME`, reduce `MPD_CLIENT_TIMEOUT_SEC`, or increase this threshold
 VERBOSE|Verbose output, valid values are `1` and `0`|0
 
 The subsonic configuration parameters are required: either specificy the individual variables, or specify a SUBSONIC_PARAMETERS to indicate the file which will contain the parameters. The file must be accessible to the container. You can use the /config volume and put a file named, e.g. ".subsonic.env" there.  

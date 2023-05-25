@@ -9,6 +9,7 @@ import libsonic
 class SubsonicServerConfig(Configuration):
 
     __PARAM_LIST : list[str] = [
+        ConfigKey.SUBSONIC_FRIENDLY_NAME.get_key(), 
         ConfigKey.SUBSONIC_BASE_URL.get_key(), 
         ConfigKey.SUBSONIC_PORT.get_key(), 
         ConfigKey.SUBSONIC_USER.get_key(), 
@@ -75,6 +76,10 @@ class SubsonicServerConfig(Configuration):
         if not (ConfigKey.SUBSONIC_USER.get_key() in conf_dict and 
             ConfigKey.SUBSONIC_PASSWORD.get_key() in conf_dict):
             raise Exception(f"Credentials missing for index {index}")
+
+    def get_friendly_name(self) -> str:
+        if ConfigKey.SUBSONIC_FRIENDLY_NAME.get_key() in self.__dict: return self.__dict[ConfigKey.SUBSONIC_FRIENDLY_NAME.get_key()]
+        return f"Server[{self.getBaseUrl()}:{self.getPort()}]"
 
     def getBaseUrl(self) -> str: return self.__dict[ConfigKey.SUBSONIC_BASE_URL.get_key()]
     def getPort(self) -> int: return self.__dict[ConfigKey.SUBSONIC_PORT.get_key()]
