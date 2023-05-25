@@ -162,7 +162,7 @@ while True:
             current_state : str = mpd_util.get_mpd_state(context, mpd_index = index)
             if not current_state == last_state:
                 context.set(context_key = ContextKey.MPD_LAST_STATE, index = index, context_value = current_state)
-                print(f"Current mpd state for index {index} [{context.get_config().get_mpd_list()[index].get_mpd_friendly_name()}] is [{current_state}], took [{mpd_get_status_elapsed} sec]")
+                print(f"Current mpd state for index {index} [{context.get_config().get_mpd_list()[index].get_mpd_friendly_name()}] is [{current_state}]")
             context.delete(ContextKey.MPD_LAST_EXCEPTION, index = index)
         except Exception as e:
             last_exception = context.get(context_key = ContextKey.MPD_LAST_EXCEPTION, index = index)
@@ -207,9 +207,9 @@ while True:
         print(f"Please consider reducing mpd timeout, increasing sleep_time, increating the threshold and/or creating dedicated instances of this scrobbler")
         elapsed_index : int
         for elapsed_index in range(len(context.get_config().get_mpd_list())):
-            print(f"  Get Mpd Status: {context.get(context_key = ContextKey.ELAPSED_MPD_STATE, index = elapsed_index)}") 
-            print(f"  Get Song Info:  {context.get(context_key = ContextKey.ELAPSED_SS_GET_SONG_INFO, index = elapsed_index)}") 
-            print(f"  Scrobbling:     {context.get(context_key = ContextKey.ELAPSED_SS_SCROBBLE_SONG, index = elapsed_index)}") 
+            print(f"  [{elapsed_index}] Get Mpd Status: {context.get(context_key = ContextKey.ELAPSED_MPD_STATE, index = elapsed_index)}") 
+            print(f"  [{elapsed_index}] Get Song Info:  {context.get(context_key = ContextKey.ELAPSED_SS_GET_SONG_INFO, index = elapsed_index)}") 
+            print(f"  [{elapsed_index}] Scrobbling:     {context.get(context_key = ContextKey.ELAPSED_SS_SCROBBLE_SONG, index = elapsed_index)}") 
 
     #if to_wait_sec < 0.0:
 
