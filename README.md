@@ -67,7 +67,7 @@ SLEEP_TIME|Interval between a coverage check and the next, in millisec|1000
 REDACT_CREDENTIALS|If set to `1`, credentials are not displayed on startup
 MAX_SUBSONIC_SERVERS|Max number of SubSonic servers, defaults to `10`
 MAX_MPD_INSTANCES|Max number of MPD instances, defaults to `10`
-MPD_CLIENT_TIMEOUT_SEC|Mpd client timeout, defaults to `0.05` (one value across all mpd instance)
+MPD_CLIENT_TIMEOUT_SEC|Specify Mpd client timeout (one value across all mpd instance), you might want to use this if mpd are not on the localhost or maybe in docker networks
 ITERATION_DURATION_THRESHOLD_PERCENT|If total handle_playback elapsed time is greater than this percentage of `SLEEP_TIME`, a warning is displayed on the standard output. In this case, you should increase `SLEEP_TIME`, reduce `MPD_CLIENT_TIMEOUT_SEC`, or increase this threshold
 VERBOSE|Verbose output, valid values are `1` and `0`|0
 
