@@ -18,7 +18,8 @@ class ScrobblerConfig:
         self.__max_mpd_instances : int = int(self.__read_env(ConfigKey.MAX_MPD_INSTANCES))
         self.__server_list : list[SubsonicServerConfig] = scrobbler_util.get_subsonic_server_config_list(self.__max_subsonic_servers)
         self.__mpd_list : list[MpdInstanceConfig] = scrobbler_util.get_mpd_instances_list(self.__max_mpd_instances)
-        self.__mpd_client_timout_sec : float = float(self.__read_env(ConfigKey.MPD_CLIENT_TIMEOUT_SEC))
+        mpd_client_timeout_sec_str = self.__read_env(ConfigKey.MPD_CLIENT_TIMEOUT_SEC)
+        self.__mpd_client_timout_sec : float = float(mpd_client_timeout_sec_str) if mpd_client_timeout_sec_str and len(mpd_client_timeout_sec_str) > 0 else None
         self.__iteration_duration_threshold_percent : int = int(self.__read_env(ConfigKey.ITERATION_DURATION_THRESHOLD_PERCENT))
 
     def __read_env(self, config_key : ConfigKey) -> str:
