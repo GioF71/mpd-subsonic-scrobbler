@@ -21,6 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Prepare for docker build
+        id: prepare
         run: |
           ref_type=${{ github.ref_type }}
           echo "REF_TYPE: ["$ref_type"]"
@@ -90,8 +91,8 @@ jobs:
             fi
           fi
           echo "Building tags: ["${tags}"]"
-          echo "RELEASE_TAGS=${tags}" >> $GITHUB_ENV
-          echo "BASE_IMAGE=${base_image}" >> $GITHUB_ENV
+          echo "RELEASE_TAGS=${tags}" >> $GITHUB_OUTPUT
+          echo "BASE_IMAGE=${base_image}" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -113,7 +114,7 @@ jobs:
         with:
           context: .
           build-args: |
-            BASE_IMAGE=${{ env.BASE_IMAGE }}
+            BASE_IMAGE=${{ steps.prepare.outputs.BASE_IMAGE }}
           platforms: linux/amd64,linux/arm/v7,linux/arm64/v8
           push: true
-          tags: ${{ env.RELEASE_TAGS }}
+          tags: ${{ steps.prepare.outputs.RELEASE_TAGS }}
