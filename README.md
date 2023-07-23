@@ -37,6 +37,7 @@ Docker images|[Docker Hub](https://hub.docker.com/r/giof71/mpd-subsonic-scrobble
 
 - linux/amd64
 - linux/arm/v7
+- linux/arm/v5
 - linux/arm64/v8
 
 ## Usage
