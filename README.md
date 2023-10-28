@@ -147,6 +147,10 @@ In order to avoid issues with password, which might contain special characters, 
 
 ## Releases
 
+### Release 0.2.1 (2023-10-28)
+
+- Support for upmpdcli intermediate urls
+
 ### Release 0.2.0 (2023-05-25)
 
 - Support for multiple mpd instances

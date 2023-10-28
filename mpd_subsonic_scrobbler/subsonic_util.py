@@ -10,6 +10,8 @@ from subsonic_connector.response import Response
 from subsonic_connector.song import Song
 from subsonic_track_id import SubsonicTrackId
 
+import os
+
 def __get_connector(subsonic_server_config : SubsonicServerConfig) -> Connector:
     return Connector(subsonic_server_config)
 
@@ -39,11 +41,20 @@ def __get_subsonic_track_id_for_config(
     song_file : str = get_mpd_current_song_file(context = context, index = index)
     parsed_url = urlparse(song_file)
     cmp_url : str = f'{parsed_url.scheme}://{parsed_url.hostname}'
-    if not cmp_url == subsonic_server_config.getBaseUrl(): return None
-    if not parsed_url.port == int(subsonic_server_config.getPort()): return None
-    url_username : str = parse_qs(parsed_url.query)['u'][0]
-    username : str = subsonic_server_config.getUserName()
-    if not url_username == username: return None
-    parse_result = parse_qs(parsed_url.query)
-    id : str = parse_result["id"][0] if "id" in parse_result else None
-    return id
+    if cmp_url == subsonic_server_config.getBaseUrl() and parsed_url.port == int(subsonic_server_config.getPort()):
+        url_username : str = parse_qs(parsed_url.query)['u'][0]
+        username : str = subsonic_server_config.getUserName()
+        if not url_username == username: return None        
+        parse_result = parse_qs(parsed_url.query)
+        id : str = parse_result["id"][0] if "id" in parse_result else None
+        return id
+    else:
+        # try trackid
+        path : str = parsed_url.path
+        if path:
+            splitted_path = os.path.split(parsed_url.path) if parsed_url.path else None
+            if not splitted_path or not len(splitted_path) == 2: return None
+            left : str = splitted_path[0]
+            if not left == "/subsonic/track/version/1/trackId": return False
+            right : str = splitted_path[1]
+            return right

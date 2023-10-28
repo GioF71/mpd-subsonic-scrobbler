@@ -7,7 +7,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/mpd_subsonic_scrobbler/scrobbler.py",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": true,
+            "envFile": "${workspaceFolder}/.env"
         },
         {
             "name": "Python: Current File",

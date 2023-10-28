@@ -34,5 +34,5 @@ class ConfigKey(Enum):
     def get_key(self) -> str:
         return self.__key
 
-    def get_default_value(self) -> str | None:
+    def get_default_value(self) -> str:
         return self.__default_value
