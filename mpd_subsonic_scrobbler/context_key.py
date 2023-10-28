@@ -19,6 +19,8 @@ class ContextKey(Enum):
     ELAPSED_SS_GET_SONG_INFO = 91, "elapsed_ss_get_song_info"
     ELAPSED_SS_SCROBBLE_SONG = 92, "elapsed_ss_scrobble_song"
 
+    MPD_CLIENT = 100, "mpd_client"
+
     def __init__(self, num, element_key : str):
         self.num = num
         self.__key : str = element_key
