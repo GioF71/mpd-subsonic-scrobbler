@@ -147,6 +147,10 @@ In order to avoid issues with password, which might contain special characters, 
 
 ## Releases
 
+### Release 0.2.2 (2023-10-28)
+
+- Handle mpd disconnections (see issue [#32](https://github.com/GioF71/mpd-subsonic-scrobbler/issues/32))
+
 ### Release 0.2.1 (2023-10-28)
 
 - Support for upmpdcli intermediate urls
