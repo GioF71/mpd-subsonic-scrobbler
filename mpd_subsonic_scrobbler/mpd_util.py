@@ -29,16 +29,26 @@ def get_mpd_state(context : Context, mpd_index : int = 0) -> str:
 def __get_connected_client(context : Context, mpd_index : int = 0) -> mpd.MPDClient:
     config : ScrobblerConfig = context.get_config()
     client : mpd.MPDClient = context.get(ContextKey.MPD_CLIENT, mpd_index)
-    #
     if not client:
         client : mpd.MPDClient = mpd.MPDClient()
         client.timeout = config.get_mpd_client_timeout_sec()
-        mpd_list : list[MpdInstanceConfig] = config.get_mpd_list()
-        mpd_host : str = mpd_list[mpd_index].get_mpd_host()
-        mpd_port : int = mpd_list[mpd_index].get_mpd_port()
-        client.connect(mpd_host, mpd_port)
         context.set(ContextKey.MPD_CLIENT, client, mpd_index)
+    client_status = None
+    do_try : bool = False
+    try:
+        client_status = client.status()
+        if client_status == None: do_try = True
+    except Exception as ex:
+        do_try = True
+    if do_try: __try_connect(client, context, mpd_index)
     return client
+
+def __try_connect(client : mpd.MPDClient, context : Context, mpd_index : int):
+    config : ScrobblerConfig = context.get_config()
+    mpd_list : list[MpdInstanceConfig] = config.get_mpd_list()
+    mpd_host : str = mpd_list[mpd_index].get_mpd_host()
+    mpd_port : int = mpd_list[mpd_index].get_mpd_port()
+    client.connect(mpd_host, mpd_port)
 
 def get_mpd_status(context : Context, mpd_index : int = 0) -> dict[str, str]:
     client : mpd.MPDClient = __get_connected_client(context = context, mpd_index = mpd_index)
