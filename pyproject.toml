@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mpd-subsonic-scrobbler"
-version = "0.1.0"
+version = "0.2.2"
 description = "A Subsonic Scrobbler for Music Player Daemon"
 authors = ["GioF_71 <giovanni.fulco@gmail.com>"]
 license = "MIT"
