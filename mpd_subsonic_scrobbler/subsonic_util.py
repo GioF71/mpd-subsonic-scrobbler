@@ -53,5 +53,8 @@ def __get_subsonic_track_id_for_config(
         path : str = parsed_url.path
         if path:
             splitted_path = os.path.split(parsed_url.path) if parsed_url.path else None
-            track_id : str = splitted_path[len(splitted_path) - 1] if splitted_path and len(splitted_path) > 0 else None
-            return track_id
+            if not splitted_path or not len(splitted_path) == 2: return None
+            left : str = splitted_path[0]
+            if not left == "/subsonic/track/version/1/trackId": return False
+            right : str = splitted_path[1]
+            return right
