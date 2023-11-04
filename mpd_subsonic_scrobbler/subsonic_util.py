@@ -50,8 +50,8 @@ def __get_subsonic_track_id_for_config(
         return id
     else:
         # try upmpdcli trackid
-        notset : bool = not subsonic_server_config.getUpmpdcliBaseUrl() and not subsonic_server_config.getUpmpdcliBasePort()
-        match : bool = notset or (cmp_url == subsonic_server_config.getUpmpdcliBaseUrl() and parsed_url.port == int(subsonic_server_config.getUpmpdcliBasePort()))
+        notset : bool = not subsonic_server_config.getUpmpdcliBaseUrl() and not subsonic_server_config.getUpmpdcliPort()
+        match : bool = notset or (cmp_url == subsonic_server_config.getUpmpdcliBaseUrl() and parsed_url.port == int(subsonic_server_config.getUpmpdcliPort()))
         if match:
             path : str = parsed_url.path
             if path:

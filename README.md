@@ -149,6 +149,10 @@ In order to avoid issues with password, which might contain special characters, 
 
 ## Releases
 
+### Release 0.3.1 (2023-11-04)
+
+- Display upmpdcli configuration parameters (see issue [#37](https://github.com/GioF71/mpd-subsonic-scrobbler/issues/37))
+
 ### Release 0.3.0 (2023-11-04)
 
 - Allow upmpdcli server restrictions (see issue [#35](https://github.com/GioF71/mpd-subsonic-scrobbler/issues/35))
