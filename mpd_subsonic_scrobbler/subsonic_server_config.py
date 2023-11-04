@@ -14,7 +14,9 @@ class SubsonicServerConfig(Configuration):
         ConfigKey.SUBSONIC_PORT.get_key(), 
         ConfigKey.SUBSONIC_USER.get_key(), 
         ConfigKey.SUBSONIC_PASSWORD.get_key(), 
-        ConfigKey.SUBSONIC_CREDENTIALS.get_key()]
+        ConfigKey.SUBSONIC_CREDENTIALS.get_key(),
+        ConfigKey.SUBSONIC_UPMPDCLI_BASE_URL.get_key(),
+        ConfigKey.SUBSONIC_UPMPDCLI_PORT.get_key()]
 
     def __init__(self, index : int = 0):
         self.__dict : dict[str, str] = {}
@@ -81,9 +83,14 @@ class SubsonicServerConfig(Configuration):
         if ConfigKey.SUBSONIC_FRIENDLY_NAME.get_key() in self.__dict: return self.__dict[ConfigKey.SUBSONIC_FRIENDLY_NAME.get_key()]
         return f"Server[{self.getBaseUrl()}:{self.getPort()}]"
 
+    def __ifin_else(self, config_key : ConfigKey, default_value : any = None) -> any:
+        return self.__dict[config_key.get_key()] if config_key.get_key() in self.__dict else default_value
+
     def getBaseUrl(self) -> str: return self.__dict[ConfigKey.SUBSONIC_BASE_URL.get_key()]
-    def getPort(self) -> int: return self.__dict[ConfigKey.SUBSONIC_PORT.get_key()]
+    def getPort(self) -> str: return self.__dict[ConfigKey.SUBSONIC_PORT.get_key()]
     def getUserName(self) -> str: return self.__dict[ConfigKey.SUBSONIC_USER.get_key()]
     def getPassword(self) -> str: return self.__dict[ConfigKey.SUBSONIC_PASSWORD.get_key()]
+    def getUpmpdcliBaseUrl(self) -> str: return self.__ifin_else(ConfigKey.SUBSONIC_UPMPDCLI_BASE_URL)
+    def getUpmpdcliBasePort(self) -> str: return self.__ifin_else(ConfigKey.SUBSONIC_UPMPDCLI_PORT)
     def getApiVersion(self) -> str: return libsonic.API_VERSION
     def getAppName(self) -> str: return "mpd-subsonic-scrobbler"
