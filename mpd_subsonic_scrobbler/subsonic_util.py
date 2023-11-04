@@ -49,12 +49,15 @@ def __get_subsonic_track_id_for_config(
         id : str = parse_result["id"][0] if "id" in parse_result else None
         return id
     else:
-        # try trackid
-        path : str = parsed_url.path
-        if path:
-            splitted_path = os.path.split(parsed_url.path) if parsed_url.path else None
-            if not splitted_path or not len(splitted_path) == 2: return None
-            left : str = splitted_path[0]
-            if not left == "/subsonic/track/version/1/trackId": return False
-            right : str = splitted_path[1]
-            return right
+        # try upmpdcli trackid
+        notset : bool = not subsonic_server_config.getUpmpdcliBaseUrl() and not subsonic_server_config.getUpmpdcliBasePort()
+        match : bool = notset or (cmp_url == subsonic_server_config.getUpmpdcliBaseUrl() and parsed_url.port == int(subsonic_server_config.getUpmpdcliBasePort()))
+        if match:
+            path : str = parsed_url.path
+            if path:
+                splitted_path = os.path.split(parsed_url.path) if parsed_url.path else None
+                if not splitted_path or not len(splitted_path) == 2: return None
+                left : str = splitted_path[0]
+                if not left == "/subsonic/track/version/1/trackId": return False
+                right : str = splitted_path[1]
+                return right
