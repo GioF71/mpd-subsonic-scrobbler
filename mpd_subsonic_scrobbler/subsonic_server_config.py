@@ -91,6 +91,6 @@ class SubsonicServerConfig(Configuration):
     def getUserName(self) -> str: return self.__dict[ConfigKey.SUBSONIC_USER.get_key()]
     def getPassword(self) -> str: return self.__dict[ConfigKey.SUBSONIC_PASSWORD.get_key()]
     def getUpmpdcliBaseUrl(self) -> str: return self.__ifin_else(ConfigKey.SUBSONIC_UPMPDCLI_BASE_URL)
-    def getUpmpdcliBasePort(self) -> str: return self.__ifin_else(ConfigKey.SUBSONIC_UPMPDCLI_PORT)
+    def getUpmpdcliPort(self) -> str: return self.__ifin_else(ConfigKey.SUBSONIC_UPMPDCLI_PORT)
     def getApiVersion(self) -> str: return libsonic.API_VERSION
     def getAppName(self) -> str: return "mpd-subsonic-scrobbler"

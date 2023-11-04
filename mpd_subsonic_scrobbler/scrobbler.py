@@ -45,6 +45,8 @@ def show_subsonic_servers(config : ScrobblerConfig):
         print(f"server[{cnt}].friendly_name=[{current.get_friendly_name()}]")
         print(f"server[{cnt}].base_url=[{current.getBaseUrl()}]")
         print(f"server[{cnt}].port=[{current.getPort()}]")
+        print(f"server[{cnt}].upmpdcli_base_url=[{current.getUpmpdcliBaseUrl()}]")
+        print(f"server[{cnt}].upmpdcli_port=[{current.getUpmpdcliPort()}]")
         if not config.get_redact_credentials(): print(f"server[{cnt}].user=[{current.getUserName()}]")
         if not config.get_redact_credentials(): print(f"server[{cnt}].password=[{current.getPassword()}]")
 
