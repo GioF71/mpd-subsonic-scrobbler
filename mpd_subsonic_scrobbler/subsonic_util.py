@@ -9,6 +9,7 @@ from subsonic_connector.connector import Connector
 from subsonic_connector.response import Response
 from subsonic_connector.song import Song
 from subsonic_track_id import SubsonicTrackId
+from libsonic.errors import DataNotFoundError
 
 import os
 
@@ -60,4 +61,11 @@ def __get_subsonic_track_id_for_config(
                 left : str = splitted_path[0]
                 if not left == "/subsonic/track/version/1/trackId": return False
                 right : str = splitted_path[1]
-                return right
+                # must check if track belongs to server in this case
+                song : Song = None
+                try:
+                    song = get_song(current_config = subsonic_server_config, song_id = right)
+                except DataNotFoundError as ex:
+                    #Song does not belong to current server
+                    pass
+                return right if song else None
