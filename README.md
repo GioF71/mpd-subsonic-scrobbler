@@ -23,6 +23,7 @@ PROJECT|Git Repo(s)
 mpd-alsa-docker|[GitHub](https://github.com/GioF71/mpd-alsa-docker)
 upmpdcli-docker|[GitHub](https://github.com/GioF71/upmpdcli-docker)
 subsonic-connector|[GitHub](https://github.com/GioF71/subsonic-connector)
+python-mpd2|[GitHub](https://github.com/Mic92/python-mpd2)
 
 Among those, `mpd-alsa-docker` and `upmpdcli-docker` provide a method for deploying mpd and upmpdcli using docker.  
 
