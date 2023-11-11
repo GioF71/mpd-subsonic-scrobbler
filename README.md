@@ -151,6 +151,10 @@ In order to avoid issues with password, which might contain special characters, 
 
 ## Releases
 
+### Release 0.3.6 (2023-11-11)
+
+- Handle unavailable servers gracefully (see issue [#48](https://github.com/GioF71/mpd-subsonic-scrobbler/issues/48))
+
 ### Release 0.3.5 (2023-11-11)
 
 - Simplified mpd reconnection code (see issue [#46](https://github.com/GioF71/mpd-subsonic-scrobbler/issues/46))
