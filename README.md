@@ -62,6 +62,7 @@ SUBSONIC_BASE_URL|Subsonic Server URL, including `http` or `https`|
 SUBSONIC_PORT|Subsonic Server Port|
 SUBSONIC_USER|Subsonic Username|
 SUBSONIC_PASSWORD|Subsonic password|
+SUBSONIC_LEGACYAUTH|Legacy authentication, required to `true` for lms, defaults to `false`
 SUBSONIC_CREDENTIALS|Reference to a file with credentials, alternative to specifying `SUBSONIC_USER` and `SUBSONIC_PASSWORD`|
 SUBSONIC_UPMPDCLI_BASE_URL|If set, only this upmpdcli server will be allowed (base url)
 SUBSONIC_UPMPDCLI_PORT|If set, only this upmpdcli server will be allowed (port)
@@ -149,6 +150,10 @@ In this case, the configuration parameters are read from the `.env` file.
 In order to avoid issues with password, which might contain special characters, it is better to not place such password on the compose file, and leverage the `.env` file instead.  
 
 ## Releases
+
+### Release 0.3.4 (2023-11-11)
+
+- Compatibility with latest subsonic-connector, for legacy authentication
 
 ### Release 0.3.3 (2023-11-11)
 
