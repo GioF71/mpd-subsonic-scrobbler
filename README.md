@@ -150,6 +150,10 @@ In order to avoid issues with password, which might contain special characters, 
 
 ## Releases
 
+### Release 0.3.3 (2023-11-11)
+
+- Recreate mpd connection in case of failure (see issue [#39](https://github.com/GioF71/mpd-subsonic-scrobbler/issues/39))
+
 ### Release 0.3.2 (2023-11-06)
 
 - Check song id belongs to current server (see issue [#39](https://github.com/GioF71/mpd-subsonic-scrobbler/issues/39))

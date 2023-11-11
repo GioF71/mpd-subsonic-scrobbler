@@ -40,15 +40,17 @@ def __get_connected_client(context : Context, mpd_index : int = 0) -> mpd.MPDCli
         if client_status == None: do_try = True
     except Exception as ex:
         do_try = True
-    if do_try: __try_connect(client, context, mpd_index)
+    if do_try: __try_connect(context, mpd_index)
     return client
 
-def __try_connect(client : mpd.MPDClient, context : Context, mpd_index : int):
+def __try_connect(context : Context, mpd_index : int):
     config : ScrobblerConfig = context.get_config()
     mpd_list : list[MpdInstanceConfig] = config.get_mpd_list()
     mpd_host : str = mpd_list[mpd_index].get_mpd_host()
     mpd_port : int = mpd_list[mpd_index].get_mpd_port()
+    client : mpd.MPDClient = mpd.MPDClient()
     client.connect(mpd_host, mpd_port)
+    context.set(ContextKey.MPD_CLIENT, client, mpd_index)
 
 def get_mpd_status(context : Context, mpd_index : int = 0) -> dict[str, str]:
     client : mpd.MPDClient = __get_connected_client(context = context, mpd_index = mpd_index)
