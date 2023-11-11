@@ -11,6 +11,8 @@ from subsonic_connector.song import Song
 from subsonic_track_id import SubsonicTrackId
 from libsonic.errors import DataNotFoundError
 
+from urllib.error import URLError
+
 import os
 
 def __get_connector(subsonic_server_config : SubsonicServerConfig) -> Connector:
@@ -65,7 +67,12 @@ def __get_subsonic_track_id_for_config(
                 song : Song = None
                 try:
                     song = get_song(current_config = subsonic_server_config, song_id = right)
-                except DataNotFoundError as ex:
+                except DataNotFoundError as dnfExc:
                     #Song does not belong to current server
                     pass
+                except URLError as urlErrorExc:
+                    # server is probably unavailable
+                    pass
+                except Exception as anyExc:
+                    print(f"__get_subsonic_track_id_for_config failed [{type(anyExc)}] [{anyExc}]")
                 return right if song else None
