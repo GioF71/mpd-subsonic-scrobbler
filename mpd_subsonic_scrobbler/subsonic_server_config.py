@@ -14,6 +14,7 @@ class SubsonicServerConfig(Configuration):
         ConfigKey.SUBSONIC_PORT.get_key(), 
         ConfigKey.SUBSONIC_USER.get_key(), 
         ConfigKey.SUBSONIC_PASSWORD.get_key(), 
+        ConfigKey.SUBSONIC_LEGACYAUTH.get_key(), 
         ConfigKey.SUBSONIC_CREDENTIALS.get_key(),
         ConfigKey.SUBSONIC_UPMPDCLI_BASE_URL.get_key(),
         ConfigKey.SUBSONIC_UPMPDCLI_PORT.get_key()]
@@ -93,4 +94,10 @@ class SubsonicServerConfig(Configuration):
     def getUpmpdcliBaseUrl(self) -> str: return self.__ifin_else(ConfigKey.SUBSONIC_UPMPDCLI_BASE_URL)
     def getUpmpdcliPort(self) -> str: return self.__ifin_else(ConfigKey.SUBSONIC_UPMPDCLI_PORT)
     def getApiVersion(self) -> str: return libsonic.API_VERSION
+    def getLegacyAuth(self) -> bool: 
+        legacy_auth_enabled_str : str = self.__ifin_else(ConfigKey.SUBSONIC_LEGACYAUTH, "false")
+        if not legacy_auth_enabled_str.lower() in ['true', 'false']: 
+            raise Exception(f"Invalid value for SUBSONIC_LEGACYAUTH [{legacy_auth_enabled_str}]")
+        return legacy_auth_enabled_str == "true"
+    
     def getAppName(self) -> str: return "mpd-subsonic-scrobbler"
