@@ -151,9 +151,13 @@ In order to avoid issues with password, which might contain special characters, 
 
 ## Releases
 
+### Release 0.3.5 (2023-11-11)
+
+- Simplified mpd reconnection code (see issue [#46](https://github.com/GioF71/mpd-subsonic-scrobbler/issues/46))
+
 ### Release 0.3.4 (2023-11-11)
 
-- Compatibility with latest subsonic-connector, for legacy authentication
+- Compatibility with latest subsonic-connector, for legacy authentication (see issue [#44](https://github.com/GioF71/mpd-subsonic-scrobbler/issues/44))
 
 ### Release 0.3.3 (2023-11-11)
 
