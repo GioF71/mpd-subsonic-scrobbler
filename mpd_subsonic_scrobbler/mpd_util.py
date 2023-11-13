@@ -19,6 +19,13 @@ class State(Enum):
     def get(self) -> str:
         return self.__state
 
+def must_sleep_for(context : Context, mpd_index : int = 0) -> int:
+    sleep_time_iterations : int = context.get(context_key = ContextKey.MPD_IMPOSED_SLEEP_ITERATIONS, index = mpd_index)
+    if not sleep_time_iterations: return 0
+    # decrement and return current
+    context.set(context_key = ContextKey.MPD_IMPOSED_SLEEP_ITERATIONS, index = mpd_index, context_value = sleep_time_iterations - 1)
+    return sleep_time_iterations
+
 def get_mpd_state(context : Context, mpd_index : int = 0) -> str:
     status : str = context.get(context_key = ContextKey.MPD_STATUS, index = mpd_index)
     mpd_status : str = (status[MPDStatusKey.STATE.get_key()] 
@@ -44,6 +51,8 @@ def __try_connect(context : Context, mpd_index : int) -> mpd.MPDClient:
     mpd_host : str = mpd_list[mpd_index].get_mpd_host()
     mpd_port : int = mpd_list[mpd_index].get_mpd_port()
     client : mpd.MPDClient = mpd.MPDClient()
+    timeout : float = config.get_mpd_client_timeout_sec()
+    if timeout: client.timeout = config.get_mpd_client_timeout_sec()    
     client.connect(mpd_host, mpd_port)
     context.set(ContextKey.MPD_CLIENT, client, mpd_index)
     return client

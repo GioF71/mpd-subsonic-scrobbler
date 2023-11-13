@@ -74,6 +74,7 @@ MAX_SUBSONIC_SERVERS|Max number of SubSonic servers, defaults to `10`
 MAX_MPD_INSTANCES|Max number of MPD instances, defaults to `10`
 MPD_CLIENT_TIMEOUT_SEC|Mpd client timeout, defaults to `0.05` (one value across all mpd instance)
 ITERATION_DURATION_THRESHOLD_PERCENT|If total handle_playback elapsed time is greater than this percentage of `SLEEP_TIME`, a warning is displayed on the standard output. In this case, you should increase `SLEEP_TIME`, reduce `MPD_CLIENT_TIMEOUT_SEC`, or increase this threshold
+MPD_IMPOSED_SLEEP_ITERATION_COUNT|Number of iteration an instance of mpd must `sleep` when it appears to not be accessible, defaults to `30`
 VERBOSE|Verbose output, valid values are `1` and `0`|0
 
 The subsonic configuration parameters are required: either specificy the individual variables, or specify a SUBSONIC_PARAMETERS to indicate the file which will contain the parameters. The file must be accessible to the container. You can use the /config volume and put a file named, e.g. ".subsonic.env" there.  
@@ -150,6 +151,13 @@ In this case, the configuration parameters are read from the `.env` file.
 In order to avoid issues with password, which might contain special characters, it is better to not place such password on the compose file, and leverage the `.env` file instead.  
 
 ## Releases
+
+### Release 0.4.0 (2023-11-13)
+
+- Effectively use mpd timeout parameter and handle timeout errors
+- Handle non-accessible mpd instances
+- Slightly improved code readability
+- Dump legacy authentication parameter
 
 ### Release 0.3.6 (2023-11-11)
 

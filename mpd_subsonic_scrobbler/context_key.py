@@ -7,6 +7,7 @@ class ContextKey(Enum):
     MPD_STATUS = 2, "mpd_status"
     MPD_LAST_EXCEPTION = 3, "mpd_last_exception"
     MPD_LAST_STATE = 4, "mpd_last_state"
+    MPD_IMPOSED_SLEEP_ITERATIONS = 5, "mpd_imposed_sleep_iterations"
     CURRENT_MPD_SONG = 10, "mpd_current_song"
     CURRENT_SUBSONIC_SONG_OBJECT = 30, "subsonic_song_object"
     CURRENT_SUBSONIC_TRACK_ID = 40, "subsonic_track_id"
