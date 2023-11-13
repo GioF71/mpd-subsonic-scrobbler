@@ -14,6 +14,8 @@ from context_key import ContextKey
 from context import Context
 from subsonic_track_id import SubsonicTrackId
 
+import socket
+
 __app_name : str = "mpd-subsonic-scrobbler"
 __app_release : str = "0.2.1"
 
@@ -45,6 +47,7 @@ def show_subsonic_servers(config : ScrobblerConfig):
         print(f"server[{cnt}].friendly_name=[{current.get_friendly_name()}]")
         print(f"server[{cnt}].base_url=[{current.getBaseUrl()}]")
         print(f"server[{cnt}].port=[{current.getPort()}]")
+        print(f"server[{cnt}].legacyauth=[{current.getLegacyAuth()}]")
         print(f"server[{cnt}].upmpdcli_base_url=[{current.getUpmpdcliBaseUrl()}]")
         print(f"server[{cnt}].upmpdcli_port=[{current.getUpmpdcliPort()}]")
         if not config.get_redact_credentials(): print(f"server[{cnt}].user=[{current.getUserName()}]")
@@ -129,7 +132,6 @@ def delete_elapsed_stats(context : ContextKey, index : int):
     context.delete(context_key = ContextKey.ELAPSED_SS_GET_SONG_INFO, index = index)
     context.delete(context_key = ContextKey.ELAPSED_SS_SCROBBLE_SONG, index = index)
 
-
 print(f"{__app_name} version {__app_release}")
 
 context : Context = Context(ScrobblerConfig())
@@ -151,23 +153,32 @@ show_mpd_instances(context.get_config())
 
 while True:
     start_time : float = time.time()
-    index : int
-    for index in range(len(mpd_list)):
-        delete_elapsed_stats(context = context, index = index)
-        last_state : str = context.get(context_key = ContextKey.MPD_LAST_STATE, index = index)
+    mpd_index : int
+    for mpd_index in range(len(mpd_list)):
+        imposed_sleep_iteration_count : int = mpd_util.must_sleep_for(context = context, mpd_index = mpd_index)
+        if imposed_sleep_iteration_count and imposed_sleep_iteration_count > 0: continue 
+        delete_elapsed_stats(context = context, index = mpd_index)
+        last_state : str = context.get(context_key = ContextKey.MPD_LAST_STATE, index = mpd_index)
         current_state : str = None
+        mpd_get_status_start : float
         try:
-            mpd_get_status_start : float = time.time()
-            status : dict = mpd_util.get_mpd_status(context, mpd_index = index)
+            mpd_get_status_start = time.time()
+            status : dict = mpd_util.get_mpd_status(context, mpd_index = mpd_index)
             mpd_get_status_elapsed : float = time.time() - mpd_get_status_start
-            context.set(context_key = ContextKey.ELAPSED_MPD_STATE, index = index, context_value = mpd_get_status_elapsed)
-            current_state : str = mpd_util.get_mpd_state(context, mpd_index = index)
+            context.set(context_key = ContextKey.ELAPSED_MPD_STATE, index = mpd_index, context_value = mpd_get_status_elapsed)
+            current_state : str = mpd_util.get_mpd_state(context, mpd_index = mpd_index)
             if not current_state == last_state:
-                context.set(context_key = ContextKey.MPD_LAST_STATE, index = index, context_value = current_state)
-                print(f"Current mpd state for index {index} [{context.get_config().get_mpd_list()[index].get_mpd_friendly_name()}] is [{current_state}]")
-            context.delete(ContextKey.MPD_LAST_EXCEPTION, index = index)
+                context.set(context_key = ContextKey.MPD_LAST_STATE, index = mpd_index, context_value = current_state)
+                print(f"Current mpd state for index {mpd_index} [{context.get_config().get_mpd_list()[mpd_index].get_mpd_friendly_name()}] is [{current_state}]")
+            context.delete(ContextKey.MPD_LAST_EXCEPTION, index = mpd_index)
         except Exception as e:
-            last_exception = context.get(context_key = ContextKey.MPD_LAST_EXCEPTION, index = index)
+            mpd_get_status_elapsed : float = time.time() - mpd_get_status_start
+            context.set(context_key = ContextKey.ELAPSED_MPD_STATE, index = mpd_index, context_value = mpd_get_status_elapsed)
+            if (isinstance(e, OSError) and OSError(e).errno == 113) or isinstance(e, socket.timeout):
+                # no route to host, impose sleep on player
+                sleep_iteration_count : int = context.get_config().get_mpd_imposed_sleep_iteration_count()
+                context.set(context_key = ContextKey.MPD_IMPOSED_SLEEP_ITERATIONS, index = mpd_index, context_value = sleep_iteration_count)
+            last_exception = context.get(context_key = ContextKey.MPD_LAST_EXCEPTION, index = mpd_index)
             last_1 : any = last_exception[1] if last_exception and len(last_exception) > 1 else None
             e_1 : any = e.args[1] if e and e.args and len(e.args) > 1 else None
             same_exception : bool = (last_exception and 
@@ -175,29 +186,29 @@ while True:
                 last_1 == e_1))
             if not same_exception:
                 e_tuple : tuple[any, any] = (e.args[0], e.args[1] if len(e.args) > 1 else None)
-                context.set(context_key = ContextKey.MPD_LAST_EXCEPTION, index = index, context_value = e_tuple)
+                context.set(context_key = ContextKey.MPD_LAST_EXCEPTION, index = mpd_index, context_value = e_tuple)
             if not same_exception:
-                print(f"Cannot get mpd state for index [{index}] [{e}]")
+                print(f"Cannot get mpd state for index [{mpd_index}] [{e}]")
 
         if mpd_util.State.PLAY.get() == current_state:
             try:
-                handle_playback(context = context, index = index)
+                handle_playback(context = context, index = mpd_index)
             except Exception as e:
-                print(f"Playback management failed at index {index} [{context.get_config().get_mpd_list()[index].get_mpd_friendly_name()}] [{e}]")
+                print(f"Playback management failed at index {mpd_index} [{context.get_config().get_mpd_list()[mpd_index].get_mpd_friendly_name()}] [{e}]")
         elif mpd_util.State.STOP.get() == current_state:
             # report something not scrobbled?
-            last_scrobbled : str = context.get(context_key = ContextKey.LAST_SCROBBLED_TRACK_ID, index = index)
-            current_song_id : str = context.get(context_key = ContextKey.CURRENT_SUBSONIC_TRACK_ID, index = index)
+            last_scrobbled : str = context.get(context_key = ContextKey.LAST_SCROBBLED_TRACK_ID, index = mpd_index)
+            current_song_id : str = context.get(context_key = ContextKey.CURRENT_SUBSONIC_TRACK_ID, index = mpd_index)
             if current_song_id and (not current_song_id == last_scrobbled):
-                song : Song = context.get(context_key = ContextKey.CURRENT_SUBSONIC_SONG_OBJECT, index = index)
+                song : Song = context.get(context_key = ContextKey.CURRENT_SUBSONIC_SONG_OBJECT, index = mpd_index)
                 scrobbler_util.was_not_scrobbled(song)
             # do cleanup?
             if (last_state and 
                 mpd_util.State.STOP.get() == current_state and 
                 not last_state == current_state):
-                if context.get_config().get_verbose(): print(f"Remove some data from context for index {index} ...")
-                scrobbler_util.clean_playback_state(lambda x, y: context.delete(context_key = x, index = y), index = index)
-                if context.get_config().get_verbose(): print(f"Data removal for index {index} complete.")
+                if context.get_config().get_verbose(): print(f"Remove some data from context for index {mpd_index} ...")
+                scrobbler_util.clean_playback_state(lambda x, y: context.delete(context_key = x, index = y), index = mpd_index)
+                if context.get_config().get_verbose(): print(f"Data removal for index {mpd_index} complete.")
     # reduce drifting
     iteration_elapsed_sec : float = time.time() - start_time
     to_wait_sec : float = context.get_config().get_sleep_time_sec() - iteration_elapsed_sec

@@ -28,6 +28,7 @@ class ConfigKey(Enum):
 
     MPD_CLIENT_TIMEOUT_SEC = 501, "MPD_CLIENT_TIMEOUT_SEC", "0.05"
     ITERATION_DURATION_THRESHOLD_PERCENT = 502, "ITERATION_DURATION_THRESHOLD_PERCENT", "50"
+    MPD_IMPOSED_SLEEP_ITERATION_COUNT = 503, "MPD_IMPOSED_SLEEP_ITERATION_COUNT", "30"
 
     def __init__(self, num, element_key : str, default_value : str = None):
         self.num = num
