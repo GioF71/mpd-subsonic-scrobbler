@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class ContextKey(Enum):
 
     MPD_HOST = 0, "mpd_host"
@@ -22,9 +23,9 @@ class ContextKey(Enum):
 
     MPD_CLIENT = 100, "mpd_client"
 
-    def __init__(self, num, element_key : str):
+    def __init__(self, num, element_key: str):
         self.num = num
-        self.__key : str = element_key
+        self.__key: str = element_key
 
     def get_key(self) -> str:
         return self.__key

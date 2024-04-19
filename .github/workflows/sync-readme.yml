@@ -2,9 +2,8 @@ name: Sync README.md to Docker Hub
 
 on:
   push:
-    tags:
-      - "release/*"
-      - "doc/*"
+    branches:
+      - "main"
 
 jobs:
   sync-readme:
@@ -14,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Docker Hub README & description sync
         uses: meeDamian/sync-readme@v1.0.6
         with:

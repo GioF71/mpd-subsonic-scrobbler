@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class ConfigKey(Enum):
 
     SUBSONIC_FRIENDLY_NAME = 101, "SUBSONIC_FRIENDLY_NAME", ""
@@ -12,7 +13,7 @@ class ConfigKey(Enum):
     SUBSONIC_UPMPDCLI_BASE_URL = 108, "SUBSONIC_UPMPDCLI_BASE_URL"
     SUBSONIC_UPMPDCLI_PORT = 109, "SUBSONIC_UPMPDCLI_PORT"
     SUBSONIC_LEGACYAUTH = 110, "SUBSONIC_LEGACYAUTH"
-    
+
     MPD_FRIENDLY_NAME = 201, "MPD_FRIENDLY_NAME", ""
     MPD_HOST = 202, "MPD_HOST", "localhost"
     MPD_PORT = 203, "MPD_PORT", "6600"
@@ -30,10 +31,10 @@ class ConfigKey(Enum):
     ITERATION_DURATION_THRESHOLD_PERCENT = 502, "ITERATION_DURATION_THRESHOLD_PERCENT", "50"
     MPD_IMPOSED_SLEEP_ITERATION_COUNT = 503, "MPD_IMPOSED_SLEEP_ITERATION_COUNT", "30"
 
-    def __init__(self, num, element_key : str, default_value : str = None):
+    def __init__(self, num, element_key: str, default_value: str = None):
         self.num = num
-        self.__key : str = element_key
-        self.__default_value : str = default_value
+        self.__key: str = element_key
+        self.__default_value: str = default_value
 
     def get_key(self) -> str:
         return self.__key
