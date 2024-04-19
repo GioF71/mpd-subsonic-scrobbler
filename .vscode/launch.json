@@ -3,7 +3,7 @@
     "configurations": [
         {
             "name": "Python: scrobbler",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/mpd_subsonic_scrobbler/scrobbler.py",
             "console": "integratedTerminal",
@@ -12,7 +12,7 @@
         },
         {
             "name": "Python: Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
