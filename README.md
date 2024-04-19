@@ -152,6 +152,13 @@ In order to avoid issues with password, which might contain special characters, 
 
 ## Releases
 
+### Release 0.5.0 (2024-04-19)
+
+- Bug: fixed repeated scrobbles
+- Code style fixed (flake8)
+- Bump subsonic-connector to 0.3.4
+- Bump py-sonic to 1.0.1
+
 ### Release 0.4.0 (2023-11-13)
 
 - Effectively use mpd timeout parameter and handle timeout errors
