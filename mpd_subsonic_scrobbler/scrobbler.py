@@ -228,9 +228,12 @@ while True:
         except Exception as e:
             mpd_get_status_elapsed: float = time.time() - mpd_get_status_start
             context.set(context_key=ContextKey.ELAPSED_MPD_STATE, index=mpd_index, context_value=mpd_get_status_elapsed)
-            if (isinstance(e, OSError) and OSError(e).errno == 113) or isinstance(e, socket.timeout):
+            if ((isinstance(e, OSError) and (e.errno == 113 or e.errno == 111)) or
+                    isinstance(e, socket.timeout)):
                 # no route to host, impose sleep on player
                 sleep_iteration_count: int = context.get_config().get_mpd_imposed_sleep_iteration_count()
+                if context.get_config().get_verbose():
+                    print(f"Player [{mpd_index}] will sleep for [{sleep_iteration_count}] iteration(s)")
                 context.set(
                     context_key=ContextKey.MPD_IMPOSED_SLEEP_ITERATIONS,
                     index=mpd_index,
@@ -245,7 +248,7 @@ while True:
                 e_tuple: tuple[any, any] = (e.args[0], e.args[1] if len(e.args) > 1 else None)
                 context.set(context_key=ContextKey.MPD_LAST_EXCEPTION, index=mpd_index, context_value=e_tuple)
             if not same_exception:
-                print(f"Cannot get mpd state for index [{mpd_index}] [{e}]")
+                print(f"Cannot get mpd state for index [{mpd_index}] [{type(e)}] [{e}]")
 
         if mpd_util.State.PLAY.get() == current_state:
             try:

@@ -152,6 +152,10 @@ In order to avoid issues with password, which might contain special characters, 
 
 ## Releases
 
+### Release 0.5.1
+
+- Reduce cpu usage (see [#53](https://github.com/GioF71/mpd-subsonic-scrobbler/issues/53))
+
 ### Release 0.5.0 (2024-04-19)
 
 - Bug: fixed repeated scrobbles
