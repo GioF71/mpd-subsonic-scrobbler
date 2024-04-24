@@ -152,6 +152,11 @@ In order to avoid issues with password, which might contain special characters, 
 
 ## Releases
 
+### Release 0.5.2
+
+- Correct version in source code
+- Improved logging
+
 ### Release 0.5.1
 
 - Reduce cpu usage (see [#53](https://github.com/GioF71/mpd-subsonic-scrobbler/issues/53))

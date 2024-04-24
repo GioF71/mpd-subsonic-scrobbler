@@ -17,7 +17,7 @@ from subsonic_track_id import SubsonicTrackId
 import socket
 
 __app_name: str = "mpd-subsonic-scrobbler"
-__app_release: str = "0.2.1"
+__app_release: str = "0.5.2"
 
 
 def execute_scrobbling(subsonic_server_config: SubsonicServerConfig, song: Song, index: int) -> dict:
@@ -233,7 +233,9 @@ while True:
                 # no route to host, impose sleep on player
                 sleep_iteration_count: int = context.get_config().get_mpd_imposed_sleep_iteration_count()
                 if context.get_config().get_verbose():
-                    print(f"Player [{mpd_index}] will sleep for [{sleep_iteration_count}] iteration(s)")
+                    print(f"Player [{mpd_index}] "
+                          f"[{context.get_config().get_mpd_list()[mpd_index].get_mpd_friendly_name()}] "
+                          f"will sleep for [{sleep_iteration_count}] iteration(s)")
                 context.set(
                     context_key=ContextKey.MPD_IMPOSED_SLEEP_ITERATIONS,
                     index=mpd_index,
@@ -248,14 +250,16 @@ while True:
                 e_tuple: tuple[any, any] = (e.args[0], e.args[1] if len(e.args) > 1 else None)
                 context.set(context_key=ContextKey.MPD_LAST_EXCEPTION, index=mpd_index, context_value=e_tuple)
             if not same_exception:
-                print(f"Cannot get mpd state for index [{mpd_index}] [{type(e)}] [{e}]")
-
+                print(f"Cannot get mpd state for index [{mpd_index}] "
+                      f"[{context.get_config().get_mpd_list()[mpd_index].get_mpd_friendly_name()}] "
+                      f"[{type(e)}] [{e}]")
         if mpd_util.State.PLAY.get() == current_state:
             try:
                 handle_playback(context=context, index=mpd_index)
             except Exception as e:
                 print(f"Playback management failed at index {mpd_index} "
-                      f"[{context.get_config().get_mpd_list()[mpd_index].get_mpd_friendly_name()}] [{e}]")
+                      f"[{context.get_config().get_mpd_list()[mpd_index].get_mpd_friendly_name()}] "
+                      f"[{type(e)}] [{e}]")
         elif mpd_util.State.STOP.get() == current_state:
             # report something not scrobbled?
             last_scrobbled: str = context.get(context_key=ContextKey.LAST_SCROBBLED_TRACK_ID, index=mpd_index)
