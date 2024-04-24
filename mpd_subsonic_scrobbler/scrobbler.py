@@ -15,9 +15,12 @@ from context import Context
 from subsonic_track_id import SubsonicTrackId
 
 import socket
+import importlib.metadata
 
 __app_name: str = "mpd-subsonic-scrobbler"
-__app_release: str = "0.5.2"
+version = importlib.metadata.version(__app_name)
+print(version)
+__app_release: str = version
 
 
 def execute_scrobbling(subsonic_server_config: SubsonicServerConfig, song: Song, index: int) -> dict:

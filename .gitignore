@@ -3,3 +3,5 @@
 .subsonic.*.env
 poetry.lock
 */__pycache__/*
+build
+*.egg-info/
