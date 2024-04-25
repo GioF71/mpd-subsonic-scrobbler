@@ -152,6 +152,11 @@ In order to avoid issues with password, which might contain special characters, 
 
 ## Releases
 
+### Release 0.5.3
+
+- version from package
+- markdown fixes
+
 ### Release 0.5.2
 
 - Correct version in source code
