@@ -2,7 +2,7 @@
 
 This is a very simple Subsonic scrobbler for MPD.  
 It is not a LAST.FM or libre.fm scrobbler.  
-This scrobbler allows mpd to notify a subsonic server when it has played a song which has been server from that subsonic server. The subsonic server might, if configured, scrobble the song to LAST.FM, libre.fm, etc.   
+This scrobbler allows mpd to notify a subsonic server when it has played a song which has been server from that subsonic server. The subsonic server might, if configured, scrobble the song to LAST.FM, libre.fm, etc.  
 It might be useful when using the Subsonic plugin for Upmpdcli. See the discussion [here](https://github.com/navidrome/navidrome/discussions/2324).
 
 ## Important notice
@@ -78,7 +78,7 @@ MPD_IMPOSED_SLEEP_ITERATION_COUNT|Number of iteration an instance of mpd must `s
 VERBOSE|Verbose output, valid values are `1` and `0`|0
 
 The subsonic configuration parameters are required: either specificy the individual variables, or specify a SUBSONIC_PARAMETERS to indicate the file which will contain the parameters. The file must be accessible to the container. You can use the /config volume and put a file named, e.g. ".subsonic.env" there.  
-All the MPD_* (unless specified) and SUBSONIC_* variables can be suffixed with `_1`, `_2`, `_3` etc in order to configure multiple mpd instances and multiple SubSonic servers.  
+All the `MPD_*` (unless specified) and `SUBSONIC_*` variables can be suffixed with `_1`, `_2`, `_3` etc in order to configure multiple mpd instances and multiple SubSonic servers.  
 Inside a single config file, even if it refer to an index > 0, the variable names must be specified without the index.
 
 ### Example configurations
@@ -225,6 +225,6 @@ In order to avoid issues with password, which might contain special characters, 
 
 - Mostly documentation changes
 
-### Release 0.1.0 (Initial Release, 2023-05-12) 
+### Release 0.1.0 (Initial Release, 2023-05-12)
 
 - First working release

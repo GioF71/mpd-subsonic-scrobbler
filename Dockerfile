@@ -1,10 +1,5 @@
 FROM python:slim
 
-WORKDIR /app
-
-COPY requirements.txt requirements.txt
-RUN pip3 install --no-cache-dir -r requirements.txt
-
 ENV MPD_FRIENDLY_NAME ""
 ENV MPD_HOST ""
 ENV MPD_PORT ""
@@ -35,11 +30,14 @@ ENV ITERATION_DURATION_THRESHOLD_PERCENT ""
 
 ENV PYTHONUNBUFFERED=1
 
-RUN mkdir /code
-COPY mpd_subsonic_scrobbler/*.py /code/
+RUN pip install poetry
 
-VOLUME /config
+#RUN mkdir /code
+WORKDIR /code/
+COPY . /code/
 
-WORKDIR /code
+RUN poetry install
 
-ENTRYPOINT [ "python3", "scrobbler.py" ]
+# WORKDIR /code/mpd_subsonic_scrobbler
+
+ENTRYPOINT [ "poetry", "run", "python", "/code/mpd_subsonic_scrobbler/scrobbler.py" ]

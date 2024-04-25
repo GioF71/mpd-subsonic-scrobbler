@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "mpd-subsonic-scrobbler"
-version = "0.5.2"
+version = "0.5.3"
 description = "A Subsonic Scrobbler for Music Player Daemon"
-authors = ["GioF_71 <giovanni.fulco@gmail.com>"]
+authors = ["GioF_71"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 python-mpd2 = "^3.0.5"
 subsonic-connector = "0.3.4"
 py-sonic = "1.0.1"
