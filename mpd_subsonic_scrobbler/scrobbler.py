@@ -17,11 +17,6 @@ from subsonic_track_id import SubsonicTrackId
 import socket
 import importlib.metadata
 
-__app_name: str = "mpd-subsonic-scrobbler"
-version = importlib.metadata.version(__app_name)
-print(version)
-__app_release: str = version
-
 
 def execute_scrobbling(subsonic_server_config: SubsonicServerConfig, song: Song, index: int) -> dict:
     print(f"About to scrobble to [{subsonic_server_config.get_friendly_name()}] "
@@ -126,7 +121,7 @@ def handle_playback(context: Context, index: int):
                 index=index,
                 context_value=current_track_hit_count)
             min_hit_count: int = (int(((float(context.get_config().get_min_coverage()) / 100.0) * song.getDuration()) /
-                                      sleep_time_sec))
+                                      context.get_config().get_sleep_time_sec()))
             context.set(
                 context_key=ContextKey.CURRENT_TRACK_MIN_HIT_COUNT,
                 index=index,
@@ -199,25 +194,33 @@ def show_slow_warning_if_needed(context: Context, iteration_elapsed_sec: float):
                 f"{context.get(context_key=ContextKey.ELAPSED_SS_SCROBBLE_SONG, index=elapsed_index)}")
 
 
-print(f"{__app_name} version {__app_release}")
+def validate_config(context: Context):
+    if len(context.get_config().get_mpd_list()) == 0:
+        print("No mpd instances, exiting ...")
+        exit(1)
+    if len(context.get_config().get_server_list()) == 0:
+        print("No subsonic servers, exiting ...")
+        exit(1)
 
+
+def display_config(context: Context):
+    sleep_time_msec: str = context.get_config().get_sleep_time_msec()
+    print(f"SLEEP_TIME: [{sleep_time_msec}] msec")
+    print(f"MIN_COVERAGE: [{context.get_config().get_min_coverage()}%]")
+    print(f"ENOUGH_PLAYBACK_SEC: [{context.get_config().get_enough_playback_sec()} sec]")
+    print(f"VERBOSE: [{context.get_config().get_verbose()}]")
+
+
+app_name: str = "mpd-subsonic-scrobbler"
+version = importlib.metadata.version(app_name)
+print(f"{app_name} version {version}")
 context: Context = Context(ScrobblerConfig())
-
-sleep_time_msec: str = context.get_config().get_sleep_time_msec()
-print(f"SLEEP_TIME: [{sleep_time_msec}] msec")
-
-sleep_time_sec: float = context.get_config().get_sleep_time_sec()
-
-print(f"MIN_COVERAGE: [{context.get_config().get_min_coverage()}%]")
-print(f"ENOUGH_PLAYBACK_SEC: [{context.get_config().get_enough_playback_sec()} sec]")
-print(f"VERBOSE: [{context.get_config().get_verbose()}]")
-
+validate_config(context)
+display_config(context)
 scrobbler_config_list: list[SubsonicServerConfig] = context.get_config().get_server_list()
 mpd_list: list[MpdInstanceConfig] = context.get_config().get_mpd_list()
-
 show_subsonic_servers(context.get_config())
 show_mpd_instances(context.get_config())
-
 while True:
     start_time: float = time.time()
     mpd_index: int
