@@ -21,7 +21,6 @@ import importlib.metadata
 
 __app_name: str = "mpd-subsonic-scrobbler"
 version = importlib.metadata.version(__app_name)
-__app_release: str = version
 
 
 def execute_scrobbling(subsonic_server_config: SubsonicServerConfig, song: Song, index: int) -> dict:
@@ -127,7 +126,7 @@ def handle_playback(context: Context, index: int):
                 index=index,
                 context_value=current_track_hit_count)
             min_hit_count: int = (int(((float(context.get_config().get_min_coverage()) / 100.0) * song.getDuration()) /
-                                      sleep_time_sec))
+                                      context.get_config().get_sleep_time_sec()))
             context.set(
                 context_key=ContextKey.CURRENT_TRACK_MIN_HIT_COUNT,
                 index=index,
@@ -177,33 +176,53 @@ def handle_playback(context: Context, index: int):
                 context.set(context_key=ContextKey.CURRENT_TRACK_HIT_COUNT, index=index, context_value=0)
 
 
-def delete_elapsed_stats(context: ContextKey, index: int):
+def delete_elapsed_stats(context: Context, index: int):
     context.delete(context_key=ContextKey.ELAPSED_MPD_STATE, index=index)
     context.delete(context_key=ContextKey.ELAPSED_SS_GET_SONG_INFO, index=index)
     context.delete(context_key=ContextKey.ELAPSED_SS_SCROBBLE_SONG, index=index)
 
 
-print(f"{__app_name} version {__app_release}")
-context: Context = Context(ScrobblerConfig())
-if len(context.get_config().get_mpd_list()) == 0:
-    print("No mpd instances, exiting ...")
-    exit(1)
-if len(context.get_config().get_server_list()) == 0:
-    print("No subsonic servers, exiting ...")
-    exit(1)
-sleep_time_msec: str = context.get_config().get_sleep_time_msec()
-print(f"SLEEP_TIME: [{sleep_time_msec}] msec")
-sleep_time_sec: float = context.get_config().get_sleep_time_sec()
-print(f"MIN_COVERAGE: [{context.get_config().get_min_coverage()}%]")
-print(f"ENOUGH_PLAYBACK_SEC: [{context.get_config().get_enough_playback_sec()} sec]")
-print(f"VERBOSE: [{context.get_config().get_verbose()}]")
+def show_slow_warning_if_needed(context: Context, iteration_elapsed_sec: float):
+    percent_duration: float = 100.0 * (float(iteration_elapsed_sec) / float(context.get_config().get_sleep_time_sec()))
+    if percent_duration > float(context.get_config().get_iteration_duration_threshold_percent()):
+        print(f"Playback management is taking too long [{iteration_elapsed_sec} sec] or "
+            f"[{percent_duration}%] of sleep_time [{context.get_config().get_sleep_time_sec()} sec]")
+        print("Please consider reducing mpd timeout, increasing sleep_time, "
+            "increasing the threshold and/or creating dedicated instances of this scrobbler")
+        elapsed_index: int
+        for elapsed_index in range(len(context.get_config().get_mpd_list())):
+            print(f"  [{elapsed_index}] Get Mpd Status: "
+                f"{context.get(context_key=ContextKey.ELAPSED_MPD_STATE, index=elapsed_index)}")
+            print(f"  [{elapsed_index}] Get Song Info:  "
+                f"{context.get(context_key=ContextKey.ELAPSED_SS_GET_SONG_INFO, index=elapsed_index)}")
+            print(f"  [{elapsed_index}] Scrobbling:     "
+                f"{context.get(context_key=ContextKey.ELAPSED_SS_SCROBBLE_SONG, index=elapsed_index)}")
 
+
+def validate_config(context: Context):
+    if len(context.get_config().get_mpd_list()) == 0:
+        print("No mpd instances, exiting ...")
+        exit(1)
+    if len(context.get_config().get_server_list()) == 0:
+        print("No subsonic servers, exiting ...")
+        exit(1)
+
+
+def display_config(context: Context):
+    print(f"SLEEP_TIME: [{context.get_config().get_sleep_time_msec()}] msec")
+    print(f"MIN_COVERAGE: [{context.get_config().get_min_coverage()}%]")
+    print(f"ENOUGH_PLAYBACK_SEC: [{context.get_config().get_enough_playback_sec()} sec]")
+    print(f"VERBOSE: [{context.get_config().get_verbose()}]")
+
+
+print(f"{__app_name} version {version}")
+context: Context = Context(ScrobblerConfig())
+validate_config(context)
+display_config(context)
 scrobbler_config_list: list[SubsonicServerConfig] = context.get_config().get_server_list()
 mpd_list: list[MpdInstanceConfig] = context.get_config().get_mpd_list()
-
 show_subsonic_servers(context.get_config())
 show_mpd_instances(context.get_config())
-
 while True:
     start_time: float = time.time()
     mpd_index: int
@@ -286,21 +305,8 @@ while True:
                 if context.get_config().get_verbose(): print(f"Data removal for index {mpd_index} complete.")
     # reduce drifting
     iteration_elapsed_sec: float = time.time() - start_time
+    show_slow_warning_if_needed(context=context, iteration_elapsed_sec=iteration_elapsed_sec)
     to_wait_sec: float = context.get_config().get_sleep_time_sec() - iteration_elapsed_sec
-    percent_duration: float = 100.0 * (float(iteration_elapsed_sec) / float(context.get_config().get_sleep_time_sec()))
-    if percent_duration > float(context.get_config().get_iteration_duration_threshold_percent()):
-        print(f"Playback management is taking too long [{iteration_elapsed_sec} sec] or "
-            f"[{percent_duration}%] of sleep_time [{context.get_config().get_sleep_time_sec()} sec]")
-        print("Please consider reducing mpd timeout, increasing sleep_time, "
-            "increasing the threshold and/or creating dedicated instances of this scrobbler")
-        elapsed_index: int
-        for elapsed_index in range(len(context.get_config().get_mpd_list())):
-            print(f"  [{elapsed_index}] Get Mpd Status: "
-                f"{context.get(context_key=ContextKey.ELAPSED_MPD_STATE, index=elapsed_index)}")
-            print(f"  [{elapsed_index}] Get Song Info:  "
-                f"{context.get(context_key=ContextKey.ELAPSED_SS_GET_SONG_INFO, index=elapsed_index)}")
-            print(f"  [{elapsed_index}] Scrobbling:     "
-                f"{context.get(context_key=ContextKey.ELAPSED_SS_SCROBBLE_SONG, index=elapsed_index)}")
     # wait as needed
     if to_wait_sec > 0.0:
         time.sleep(to_wait_sec)
