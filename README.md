@@ -152,6 +152,12 @@ In order to avoid issues with password, which might contain special characters, 
 
 ## Releases
 
+### Release 0.5.3
+
+- Build using setuptools
+- Extracted functions (reduce function length)
+- Misc cleanup
+
 ### Release 0.5.2
 
 - Correct version in source code
