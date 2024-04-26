@@ -182,6 +182,23 @@ def delete_elapsed_stats(context: ContextKey, index: int):
     context.delete(context_key=ContextKey.ELAPSED_SS_SCROBBLE_SONG, index=index)
 
 
+def show_slow_warning_if_needed(context: Context, iteration_elapsed_sec: float):
+    percent_duration: float = 100.0 * (float(iteration_elapsed_sec) / float(context.get_config().get_sleep_time_sec()))
+    if percent_duration > float(context.get_config().get_iteration_duration_threshold_percent()):
+        print(f"Playback management is taking too long [{iteration_elapsed_sec} sec] or "
+            f"[{percent_duration}%] of sleep_time [{context.get_config().get_sleep_time_sec()} sec]")
+        print("Please consider reducing mpd timeout, increasing sleep_time, "
+            "increasing the threshold and/or creating dedicated instances of this scrobbler")
+        elapsed_index: int
+        for elapsed_index in range(len(context.get_config().get_mpd_list())):
+            print(f"  [{elapsed_index}] Get Mpd Status: "
+                f"{context.get(context_key=ContextKey.ELAPSED_MPD_STATE, index=elapsed_index)}")
+            print(f"  [{elapsed_index}] Get Song Info:  "
+                f"{context.get(context_key=ContextKey.ELAPSED_SS_GET_SONG_INFO, index=elapsed_index)}")
+            print(f"  [{elapsed_index}] Scrobbling:     "
+                f"{context.get(context_key=ContextKey.ELAPSED_SS_SCROBBLE_SONG, index=elapsed_index)}")
+
+
 print(f"{__app_name} version {__app_release}")
 
 context: Context = Context(ScrobblerConfig())
@@ -283,21 +300,8 @@ while True:
                 if context.get_config().get_verbose(): print(f"Data removal for index {mpd_index} complete.")
     # reduce drifting
     iteration_elapsed_sec: float = time.time() - start_time
-    to_wait_sec: float = context.get_config().get_sleep_time_sec() - iteration_elapsed_sec
-    percent_duration: float = 100.0 * (float(iteration_elapsed_sec) / float(context.get_config().get_sleep_time_sec()))
-    if percent_duration > float(context.get_config().get_iteration_duration_threshold_percent()):
-        print(f"Playback management is taking too long [{iteration_elapsed_sec} sec] or "
-              f"[{percent_duration}%] of sleep_time [{context.get_config().get_sleep_time_sec()} sec]")
-        print("Please consider reducing mpd timeout, increasing sleep_time, "
-              "increasing the threshold and/or creating dedicated instances of this scrobbler")
-        elapsed_index: int
-        for elapsed_index in range(len(context.get_config().get_mpd_list())):
-            print(f"  [{elapsed_index}] Get Mpd Status: "
-                  f"{context.get(context_key=ContextKey.ELAPSED_MPD_STATE, index=elapsed_index)}")
-            print(f"  [{elapsed_index}] Get Song Info:  "
-                  f"{context.get(context_key=ContextKey.ELAPSED_SS_GET_SONG_INFO, index=elapsed_index)}")
-            print(f"  [{elapsed_index}] Scrobbling:     "
-                  f"{context.get(context_key=ContextKey.ELAPSED_SS_SCROBBLE_SONG, index=elapsed_index)}")
+    show_slow_warning_if_needed(context=context, iteration_elapsed_sec=iteration_elapsed_sec)
     # wait as needed
+    to_wait_sec: float = context.get_config().get_sleep_time_sec() - iteration_elapsed_sec
     if to_wait_sec > 0.0:
         time.sleep(to_wait_sec)
