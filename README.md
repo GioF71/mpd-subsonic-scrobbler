@@ -78,7 +78,7 @@ MPD_IMPOSED_SLEEP_ITERATION_COUNT|Number of iteration an instance of mpd must `s
 VERBOSE|Verbose output, valid values are `1` and `0`|0
 
 The subsonic configuration parameters are required: either specificy the individual variables, or specify a SUBSONIC_PARAMETERS to indicate the file which will contain the parameters. The file must be accessible to the container. You can use the /config volume and put a file named, e.g. ".subsonic.env" there.  
-All the MPD_* (unless specified) and SUBSONIC_* variables can be suffixed with `_1`, `_2`, `_3` etc in order to configure multiple mpd instances and multiple SubSonic servers.  
+All the `MPD_*` (unless specified) and `SUBSONIC_*` variables can be suffixed with `_1`, `_2`, `_3` etc in order to configure multiple mpd instances and multiple SubSonic servers.  
 Inside a single config file, even if it refer to an index > 0, the variable names must be specified without the index.
 
 ### Example configurations
