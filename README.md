@@ -5,6 +5,12 @@ It is not a LAST.FM or libre.fm scrobbler.
 This scrobbler allows mpd to notify a subsonic server when it has played a song which has been server from that subsonic server. The subsonic server might, if configured, scrobble the song to LAST.FM, libre.fm, etc.   
 It might be useful when using the Subsonic plugin for Upmpdcli. See the discussion [here](https://github.com/navidrome/navidrome/discussions/2324).
 
+## Support
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H2H7UIN5D)  
+Please see the [Goal](https://ko-fi.com/giof71/goal?g=0)  
+Please note that support goal is limited to cover running costs for subscriptions to music services.
+
 ## Important notice
 
 Initially I used [this](https://hub.docker.com/r/giof71/subsonic-mpd-scrobbler) docker repo. I then noticed that it was named differently from the github repo.  
