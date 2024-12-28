@@ -3,6 +3,7 @@ import time
 import mpd_util
 import subsonic_util
 import scrobbler_util
+import song_cache
 
 from mpd_status_key import MPDStatusKey
 from scrobbler_config import ScrobblerConfig
@@ -100,7 +101,7 @@ def handle_playback(context: Context, index: int):
             print(f"Song [{changed}], loading TrackId:[{subsonic_track_id}] "
                   f"from subsonic server [{current_config.get_friendly_name()}] ...")
             get_ss_start: float = time.time()
-            song = subsonic_util.get_song(current_config, subsonic_track_id)
+            song = song_cache.get_song(context, current_config, subsonic_track_id)
             get_ss_elapsed: float = time.time() - get_ss_start
             context.set(context_key=ContextKey.ELAPSED_SS_GET_SONG_INFO, index=index, context_value=get_ss_elapsed)
             context.set(context_key=ContextKey.CURRENT_SUBSONIC_SONG_OBJECT, index=index, context_value=song)
@@ -260,7 +261,9 @@ def main():
             except Exception as e:
                 mpd_get_status_elapsed: float = time.time() - mpd_get_status_start
                 context.set(context_key=ContextKey.ELAPSED_MPD_STATE, index=mpd_index, context_value=mpd_get_status_elapsed)
-                if ((isinstance(e, OSError) and (e.errno == 113 or e.errno == 111)) or
+                is_oserror: bool = isinstance(e, OSError)
+                maybe_os_error: OSError = e if is_oserror else None
+                if ((is_oserror and (maybe_os_error.errno in [113, 111])) or
                         isinstance(e, socket.timeout)):
                     # no route to host, impose sleep on player
                     sleep_iteration_count: int = context.get_config().get_mpd_imposed_sleep_iteration_count()

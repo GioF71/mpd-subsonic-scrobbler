@@ -1,6 +1,7 @@
+from enum import Enum
+
 from context import Context
 from context_key import ContextKey
-from enum import Enum
 from mpd_status_key import MPDStatusKey
 from mpd_instance_config import MpdInstanceConfig
 from scrobbler_config import ScrobblerConfig
@@ -76,21 +77,21 @@ def get_mpd_status(context: Context, mpd_index: int = 0) -> dict[str, str]:
 
 
 def get_mpd_current_song_artist(context: Context, index: int) -> str:
-    return __get_mpd_current_song_property(context=context, index=index, property=MPDStatusKey.ARTIST.get_key())
+    return __get_mpd_current_song_property(context=context, index=index, property_key=MPDStatusKey.ARTIST.get_key())
 
 
 def get_mpd_current_song_title(context: Context, index: int) -> str:
-    return __get_mpd_current_song_property(context=context, index=index, property=MPDStatusKey.TITLE.get_key())
+    return __get_mpd_current_song_property(context=context, index=index, property_key=MPDStatusKey.TITLE.get_key())
 
 
 def get_mpd_current_song_file(context: Context, index: int) -> str:
-    return __get_mpd_current_song_property(context=context, index=index, property=MPDStatusKey.FILE.get_key())
+    return __get_mpd_current_song_property(context=context, index=index, property_key=MPDStatusKey.FILE.get_key())
 
 
 def get_mpd_current_song_time(context: Context, index: int) -> str:
-    return __get_mpd_current_song_property(context=context, index=index, property=MPDStatusKey.TIME.get_key())
+    return __get_mpd_current_song_property(context=context, index=index, property_key=MPDStatusKey.TIME.get_key())
 
 
-def __get_mpd_current_song_property(context: Context, index: int, property: str) -> str:
+def __get_mpd_current_song_property(context: Context, index: int, property_key: str) -> str:
     current_song: dict[str, str] = context.get(context_key=ContextKey.CURRENT_MPD_SONG, index=index)
-    return current_song[property] if current_song and property in current_song else None
+    return current_song[property_key] if current_song and property_key in current_song else None

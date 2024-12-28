@@ -14,6 +14,7 @@ from libsonic.errors import DataNotFoundError
 from urllib.error import URLError
 
 import os
+import song_cache
 
 
 def __get_connector(subsonic_server_config: SubsonicServerConfig) -> Connector:
@@ -75,7 +76,7 @@ def __get_subsonic_track_id_for_config(
                 # must check if track belongs to server in this case
                 song: Song = None
                 try:
-                    song = get_song(current_config=subsonic_server_config, song_id=right)
+                    song = song_cache.get_song(context=context, current_config=subsonic_server_config, song_id=right)
                 except DataNotFoundError:
                     # Song does not belong to current server
                     pass
