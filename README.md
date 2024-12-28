@@ -152,6 +152,10 @@ In order to avoid issues with password, which might contain special characters, 
 
 ## Releases
 
+### Release 0.5.4
+
+- Introduced caching against subsonic servers
+
 ### Release 0.5.3
 
 - Build using setuptools

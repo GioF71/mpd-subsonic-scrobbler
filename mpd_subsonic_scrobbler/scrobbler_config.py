@@ -17,8 +17,17 @@ class ScrobblerConfig:
         self.__redact_credentials: bool = True if int(self.__read_env(ConfigKey.REDACT_CREDENTIALS)) == 1 else False
         self.__max_subsonic_servers: int = int(self.__read_env(ConfigKey.MAX_SUBSONIC_SERVERS))
         self.__max_mpd_instances: int = int(self.__read_env(ConfigKey.MAX_MPD_INSTANCES))
-        self.__server_list: list[SubsonicServerConfig] = scrobbler_util.get_subsonic_server_config_list(
+        tmp_server_list: list[SubsonicServerConfig] = scrobbler_util.get_subsonic_server_config_list(
             max_servers=self.__max_subsonic_servers)
+        # cannot allow duplicate friendly names.
+        current_server_config: SubsonicServerConfig
+        fn_set: set[str] = set()
+        for current_server_config in tmp_server_list:
+            if current_server_config.get_friendly_name() in fn_set:
+                raise Exception(f"Duplicate friendly name [{current_server_config.get_friendly_name()}]")
+            else:
+                fn_set.add(current_server_config.get_friendly_name())
+        self.__server_list: list[SubsonicServerConfig] = tmp_server_list
         self.__mpd_list: list[MpdInstanceConfig] = scrobbler_util.get_mpd_instances_list(self.__max_mpd_instances)
         mpd_client_timeout_sec_str = self.__read_env(ConfigKey.MPD_CLIENT_TIMEOUT_SEC)
         self.__mpd_client_timout_sec: float = (float(mpd_client_timeout_sec_str)
