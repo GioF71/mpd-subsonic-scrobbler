@@ -158,6 +158,10 @@ In order to avoid issues with password, which might contain special characters, 
 
 ## Releases
 
+### Release 0.5.5
+
+- Song recognition: match using song title and artist (avoid spurious scrobbles if more servers are configured)
+
 ### Release 0.5.4
 
 - Introduced caching against subsonic servers
