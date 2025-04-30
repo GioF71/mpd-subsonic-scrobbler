@@ -1,6 +1,8 @@
 from subsonic_server_config import SubsonicServerConfig
 from context import Context
 from mpd_util import get_mpd_current_song_file
+from mpd_util import get_mpd_current_song_title
+from mpd_util import get_mpd_current_song_artist
 
 from urllib.parse import urlparse
 from urllib.parse import parse_qs
@@ -83,8 +85,11 @@ def __get_subsonic_track_id_for_config(
                 except URLError:
                     # server is probably unavailable
                     pass
-                except Exception as anyExc:
+                except Exception as any_exc:
                     print("__get_subsonic_track_id_for_config failed on "
                           f"[{subsonic_server_config.get_friendly_name()}] "
-                          f"[{type(anyExc)}] [{anyExc}]")
-                return right if song else None
+                          f"[{type(any_exc)}] [{any_exc}]")
+                # check if the song is the one that is playing.
+                song_title: str = get_mpd_current_song_title(context=context, index=index)
+                song_artist: str = get_mpd_current_song_artist(context=context, index=index)
+                return right if song and song_title == song.getTitle() and song_artist == song.getArtist() else None

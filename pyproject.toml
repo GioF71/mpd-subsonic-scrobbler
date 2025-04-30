@@ -2,7 +2,7 @@
 name = "mpd-subsonic-scrobbler"
 description = "A Subsonic Scrobbler for Music Player Daemon"
 license = {text = "MIT License"}
-version = "0.5.4"
+version = "0.5.5"
 authors = [
   {name = "Giovanni Fulco"}
 ]

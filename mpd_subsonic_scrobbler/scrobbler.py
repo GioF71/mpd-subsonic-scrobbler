@@ -1,4 +1,6 @@
 import time
+import socket
+import importlib.metadata
 
 import mpd_util
 import subsonic_util
@@ -14,9 +16,6 @@ from mpd_instance_config import MpdInstanceConfig
 from context_key import ContextKey
 from context import Context
 from subsonic_track_id import SubsonicTrackId
-
-import socket
-import importlib.metadata
 
 
 def execute_scrobbling(
@@ -235,7 +234,8 @@ def main():
         mpd_index: int
         for mpd_index in range(len(mpd_list)):
             imposed_sleep_iteration_count: int = mpd_util.must_sleep_for(context=context, mpd_index=mpd_index)
-            if imposed_sleep_iteration_count and imposed_sleep_iteration_count > 0: continue
+            if imposed_sleep_iteration_count and imposed_sleep_iteration_count > 0:
+                continue
             delete_elapsed_stats(context=context, index=mpd_index)
             last_state: str = context.get(context_key=ContextKey.MPD_LAST_STATE, index=mpd_index)
             current_state: str = None
